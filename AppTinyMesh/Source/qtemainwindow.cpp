@@ -29,6 +29,8 @@ void MainWindow::CreateActions()
 {
 	// Buttons
     connect(uiw->boxMesh, SIGNAL(clicked()), this, SLOT(BoxMeshExample()));
+    connect(uiw->DiskButton, SIGNAL(clicked()), this, SLOT(DiskMesh()));
+    connect(uiw->ConeButton, SIGNAL(clicked()), this, SLOT(ConeMesh()));
     connect(uiw->sphereImplicit, SIGNAL(clicked()), this, SLOT(SphereImplicitExample()));
     connect(uiw->resetcameraButton, SIGNAL(clicked()), this, SLOT(ResetCamera()));
     connect(uiw->wireframe, SIGNAL(clicked()), this, SLOT(UpdateMaterial()));
@@ -46,6 +48,40 @@ void MainWindow::editingSceneLeft(const Ray&)
 
 void MainWindow::editingSceneRight(const Ray&)
 {
+}
+
+void MainWindow::DiskMesh()
+{
+    Vector up1(0, 1, 0);
+    Vector center1(0, 0, 0);
+
+    Mesh diskMesh = Mesh(Disk(10.0, up1, center1), 15);
+
+    std::vector<Color> cols;
+    cols.resize(diskMesh.Vertexes());
+    for (size_t i = 0; i < cols.size(); i++)
+        cols[i] = Color(1,1,1);//Color(double(i) / 6.0, fmod(double(i) * 39.478378, 1.0), 0.0);
+    meshColor = MeshColor(diskMesh, cols, diskMesh.VertexIndexes());
+    UpdateGeometry();
+
+}
+
+void MainWindow::ConeMesh()
+{
+    float radius1 = 5;
+    double height1 = 5.0;
+    Vector center1(0, 0, 0);
+
+    Cone conus(radius1, height1, center1);
+
+    Mesh coneMesh = Mesh(conus, 15);
+
+    std::vector<Color> cols;
+    cols.resize(coneMesh.Vertexes());
+    for (size_t i = 0; i < cols.size(); i++)
+        cols[i] = Color(double(i) / 6.0, fmod(double(i) * 39.478378, 1.0), 0.0);
+    meshColor = MeshColor(coneMesh, cols, coneMesh.VertexIndexes());
+    updateGeometry();
 }
 
 void MainWindow::BoxMeshExample()
@@ -81,6 +117,7 @@ void MainWindow::UpdateGeometry()
 {
 	meshWidget->ClearAll();
 	meshWidget->AddMesh("BoxMesh", meshColor);
+    meshWidget->AddMesh("DiskMesh", meshColor);
 
     uiw->lineEdit->setText(QString::number(meshColor.Vertexes()));
     uiw->lineEdit_2->setText(QString::number(meshColor.Triangles()));
