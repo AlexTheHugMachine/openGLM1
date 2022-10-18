@@ -30,6 +30,7 @@ public slots:
   void BoxMeshExample();
   void DiskMesh();
   void ConeMesh();
+  void CylinderMesh();
   void SphereImplicitExample();
   void ResetCamera();
   void UpdateMaterial();

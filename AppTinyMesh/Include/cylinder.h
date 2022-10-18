@@ -4,10 +4,12 @@
 
 class Cylinder
 {
-    Cylinder(float _radius, Vector _center);
+public:
+    Cylinder(float _radius, double _height, Vector _center);
     ~Cylinder();
     float radius;
-    Vector center;
+    double height;
+    Vector Center;
 };
 
 #endif // CYLINDER_H

@@ -205,7 +205,6 @@ Mesh::Mesh(const Box& box)
 
 Mesh::Mesh(const class Disk& disk, int nbpoints)
 {
-
     vertices.resize(nbpoints + 1);
     vertices[0] = disk.Center;
 
@@ -218,7 +217,7 @@ Mesh::Mesh(const class Disk& disk, int nbpoints)
         double x = disk.Center[0] + (disk.radius * cos(alpha));
         double y = disk.Center[1] + (disk.radius * sin(alpha));
 
-        vertices[i+1] = Vector(x, y, (double)(0.0 + disk.Center[1]));
+        vertices[i+1] = Vector(x, y, (double)(0.0 + disk.Center[2]));
     }
 
     varray.reserve((nbpoints ) * 3);
@@ -234,91 +233,87 @@ Mesh::Mesh(const Cone& cone, int nbpoints)
 {
     // Vertices
     vertices.resize(nbpoints + 2);
-    vertices[0] = cone.center;
+    vertices[0] = cone.Center;
+    normals.push_back(Vector(0, 0, 1));
+
     float step = (2 * M_PI) / nbpoints;
     for (int i = 1; i <= nbpoints; i++)
     {
         double alpha = step * i;
-        double x = cone.center[0] + cone.radius * cos(alpha);
-        double z = cone.center[2] + cone.radius * sin(alpha);
-        vertices[i] = Vector(x, (double)(0.0 + cone.center[1]), z);
+        double x = cone.Center[0] + cone.radius * cos(alpha);
+        double y = cone.Center[1] + cone.radius * sin(alpha);
+        vertices[i] = Vector(x, y, (double)(0.0 + cone.Center[2]));
     }
 
     // Reserve space for the triangle array
-    varray.reserve((nbpoints + 2) * 3);
-    narray.reserve((nbpoints + 2) * 3);
+    varray.reserve((nbpoints) * 3);
+    narray.reserve((nbpoints) * 3);
 
-    for (int k = 1; k <= nbpoints; k++)
+    for (int k = 0; k < nbpoints; k++)
     {
-        Triangle t(vertices[k], vertices[0], vertices[(k % nbpoints) + 1]);
-        normals.push_back(t.Normal());
-        AddTriangle(k, 0, (k % nbpoints) + 1, k - 1);
+        AddTriangle(0, 1+k, 1+((k+1) % nbpoints), 0);
     }
 
     // Scale to return Disk so its normal face downward.
     this->Scale(-1);
 
     // Add tip of Cone and triangles
-    vertices[nbpoints + 1] = Vector(cone.center[0], cone.center[1] + cone.height, cone.center[2]);
+    vertices[nbpoints+1] = Vector(cone.Center[0], cone.Center[1], cone.Center[2] + cone.height);
 
-    for (int j = 1; j<= nbpoints; j++)
+    for (int j = 0; j< nbpoints; j++)
     {
         //Create Triangle with the cone tip and the base (disk)
-        Triangle t(vertices[j], vertices[nbpoints+1], vertices[(j % nbpoints) + 1]);
-        normals.push_back(t.Normal());
-        AddTriangle(j, nbpoints + 1, (j % nbpoints) + 1, (nbpoints - 1) + j);
+        //Triangle t(vertices[j], vertices[nbpoints+1], vertices[(j % nbpoints) + 1]);
+        double alpha = step * j;
+        double x = cone.Center[0] + cone.radius * cos(alpha);
+        double y = cone.Center[1] + cone.radius * sin(alpha);
+
+        Vector u = Vector(x, y, 0);
+        Vector z = Vector(0, 0, 1);
+        Vector n = u*cone.height + z*cone.radius;
+
+        normals.push_back(n);
+        //AddTriangle(nbpoints+1,1+j, 1+((j+1) % nbpoints) , j+1);
+        AddSmoothTriangle(nbpoints+1,nbpoints+1/*astuce*/,1+j,1+j, 1+((j+1) % nbpoints) , 1+((j+1) % nbpoints));
     }
+    normals.push_back(Vector(0, 0, 1)); //Sert pour approximer la normale du point du haut
 }
-
-/*void Mesh::Cone(float ray, int div, double height, Vector center)
-{
-    // Vertices
-    vertices.resize(div + 2);
-    vertices[0] = center;
-    float step = (2 * M_PI) / div;
-    for (int i = 1; i <= div; i++)
-    {
-        double alpha = step * i;
-        double x = center[0] + ray * cos(alpha);
-        double z = center[2] + ray * sin(alpha);
-        vertices[i] = Vector(x, (double)(0.0 + center[1]), z);
-    }
-
-    // Reserve space for the triangle array
-    varray.reserve((div + 2) * 3);
-    narray.reserve((div + 2) * 3);
-
-    for (int k = 1; k <= div; k++)
-    {
-        Triangle t(vertices[k], vertices[0], vertices[(k % div) + 1]);
-        normals.push_back(t.Normal());
-        AddTriangle(k, 0, (k % div) + 1, k - 1);
-    }
-
-    // Scale to return Disk so its normal face downward.
-    this->Scale(-1);
-
-    // Add tip of Cone and triangles
-    vertices[div + 1] = Vector(center[0], center[1] + height, center[2]);
-
-    for (int j = 1; j<= div; j++)
-    {
-        //Create Triangle with the cone tip and the base (disk)
-        Triangle t(vertices[j], vertices[div+1], vertices[(j % div) + 1]);
-        normals.push_back(t.Normal());
-        AddTriangle(j, div + 1, (j % div) + 1, (div - 1) + j);
-    }
-}*/
 
 Mesh::Mesh(const Cylinder& cylinder, int nbpoints)
 {
-    float alpha;
-    float step = 2.0 * M_PI / nbpoints;
+    vertices.resize((nbpoints+1)*2);
+    vertices[0] = cylinder.Center;
+    Vector Center2Z(0, 0, cylinder.height);
+    Vector Center2 = Center2Z + cylinder.Center;
 
-    for(int i=0; i<= nbpoints; ++i)
+    vertices[nbpoints+1] = Center2;
+
+    varray.reserve((nbpoints ) * 6);
+    narray.reserve((nbpoints ) * 6);
+
+    float step = (2 * M_PI) / nbpoints;
+    normals.push_back(Vector(0, 0, 1));
+
+    for (int i = 0; i<nbpoints; i++)
     {
-        alpha = i * step;
+        double alpha = step * i;
+        double x1 = cylinder.Center[0] + (cylinder.radius * cos(alpha));
+        double y1 = cylinder.Center[1] + (cylinder.radius * sin(alpha));
 
+        vertices[i+1] = Vector(x1, y1, (double)(0.0 + cylinder.Center[2]));
+
+        AddTriangle(0,1+i, 1+((i+1) % nbpoints) , 0); // 1+ pour gerer le decal du cengtre
+    }
+
+    for (int j = 0; j<nbpoints+1; j++)
+    {
+        double alpha = step * (j+nbpoints);
+        double x2 = Center2[0] + (cylinder.radius * cos(alpha));
+        double y2 = Center2[1] + (cylinder.radius * sin(alpha));
+
+        vertices[j+2+nbpoints] = Vector(x2, y2, (double)(0.0 + Center2[2]));
+
+        AddTriangle(nbpoints+1,1+j+nbpoints, 2+((j+nbpoints) % nbpoints+nbpoints) , 0); // 1+ pour gerer le decal du cengtre
     }
 }
 

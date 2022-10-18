@@ -1,8 +1,9 @@
 #include "cylinder.h"
 
-Cylinder::Cylinder(float _radius, Vector _center) {
+Cylinder::Cylinder(float _radius, double _height, Vector _center) {
     radius = _radius;
-    center = _center;
+    height = _height;
+    Center = _center;
 };
 
 Cylinder::~Cylinder()

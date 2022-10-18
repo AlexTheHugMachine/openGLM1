@@ -10,7 +10,7 @@ public:
     ~Cone();
     float radius;
     double height;
-    Vector center;
+    Vector Center;
 };
 
 #endif // CONE_H
