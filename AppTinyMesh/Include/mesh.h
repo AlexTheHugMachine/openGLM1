@@ -4,6 +4,8 @@
 #include "disk.h"
 #include "cone.h"
 #include "cylinder.h"
+#include "sphere.h"
+#include "tore.h"
 #include "ray.h"
 #include "mathematics.h"
 
@@ -124,10 +126,10 @@ public:
   // Constructors from core classes
   explicit Mesh(const Box&);
   explicit Mesh(const Disk&, int nbpoints);
-  void Disk(float ray, int div, Vector center);
   explicit Mesh(const Cone&, int nbpoints);
-  //void Cone(float ray, int div, double height, Vector center);
   explicit Mesh(const Cylinder&, int nbpoints);
+  explicit Mesh(const Sphere&, int nbpoints);
+  explicit Mesh(const Tore&, int nbpoints_radial, int nbpoints_tubular);
 
   void Load(const QString&);
   void SaveObj(const QString&, const QString&) const;

@@ -8,14 +8,14 @@ class matrix
 public:
     matrix();
     float MatrixTab[3][3];
-    void IdentMatrix();
-    void Homothetie(matrix m);
-    void RotationAxeX(matrix m, double angle);
-    void RotationAxeY(matrix m, double angle);
-    void RotationAxeZ(matrix m, double angle);
-    void Translation(matrix m, float x, float y, float z);
+    matrix IdentMatrix();
+    matrix Homothetie(matrix m);
+    matrix RotationAxeX(matrix m, double angle);
+    matrix RotationAxeY(matrix m, double angle);
+    matrix RotationAxeZ(matrix m, double angle);
+    matrix Translation(matrix m, float x, float y, float z);
     matrix Transpo(matrix m);
-    void Inverse(matrix m);
+    matrix Inverse(matrix m);
     int determinant(matrix m);
 };
 

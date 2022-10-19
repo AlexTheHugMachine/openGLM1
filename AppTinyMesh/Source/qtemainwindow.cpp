@@ -32,6 +32,8 @@ void MainWindow::CreateActions()
     connect(uiw->DiskButton, SIGNAL(clicked()), this, SLOT(DiskMesh()));
     connect(uiw->ConeButton, SIGNAL(clicked()), this, SLOT(ConeMesh()));
     connect(uiw->CylinderButton, SIGNAL(clicked()), this, SLOT(CylinderMesh()));
+    connect(uiw->SphereButton, SIGNAL(clicked()), this, SLOT(SphereMesh()));
+    connect(uiw->ToreButton, SIGNAL(clicked()), this, SLOT(ToreMesh()));
     connect(uiw->sphereImplicit, SIGNAL(clicked()), this, SLOT(SphereImplicitExample()));
     connect(uiw->resetcameraButton, SIGNAL(clicked()), this, SLOT(ResetCamera()));
     connect(uiw->wireframe, SIGNAL(clicked()), this, SLOT(UpdateMaterial()));
@@ -92,6 +94,32 @@ void MainWindow::CylinderMesh()
     for (size_t i = 0; i < cols.size(); i++)
         cols[i] = Color(200,200,200); //Color(double(i) / 6.0, fmod(double(i) * 39.478378, 1.0), 0.0);
     meshColor = MeshColor(cylinderMesh, cols, cylinderMesh.VertexIndexes());
+    UpdateGeometry();
+}
+
+void MainWindow::SphereMesh()
+{
+    Vector center1(0, 0, 0);
+
+    Mesh sphereMesh = Mesh(Sphere(5.0, center1), 15);
+
+    std::vector<Color> cols;
+    cols.resize(sphereMesh.Vertexes());
+    for (size_t i = 0; i < cols.size(); i++)
+        cols[i] = Color(200,200,200); //Color(double(i) / 6.0, fmod(double(i) * 39.478378, 1.0), 0.0);
+    meshColor = MeshColor(sphereMesh, cols, sphereMesh.VertexIndexes());
+    UpdateGeometry();
+}
+
+void MainWindow::ToreMesh()
+{
+    Mesh ToreMesh = Mesh(Tore(5.0, 5.0), 15, 15);
+
+    std::vector<Color> cols;
+    cols.resize(ToreMesh.Vertexes());
+    for (size_t i = 0; i < cols.size(); i++)
+        cols[i] = Color(200,200,200); //Color(double(i) / 6.0, fmod(double(i) * 39.478378, 1.0), 0.0);
+    meshColor = MeshColor(ToreMesh, cols, ToreMesh.VertexIndexes());
     UpdateGeometry();
 }
 

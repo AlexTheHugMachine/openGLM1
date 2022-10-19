@@ -7,3 +7,4 @@ AppTinyMesh/Include/ui-interface.h
 /AppTinyMesh/Include/ui_interface.h
 build*
 .qtc*
+Doxygen/*

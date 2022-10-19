@@ -25,6 +25,8 @@ SOURCES += \
     AppTinyMesh/Source/qtemainwindow.cpp \
     AppTinyMesh/Source/ray.cpp \
     AppTinyMesh/Source/shader-api.cpp \
+    AppTinyMesh/Source/sphere.cpp \
+    AppTinyMesh/Source/tore.cpp \
     AppTinyMesh/Source/triangle.cpp \
 
 HEADERS += \
@@ -41,6 +43,8 @@ HEADERS += \
     AppTinyMesh/Include/qte.h \
     AppTinyMesh/Include/realtime.h \
     AppTinyMesh/Include/shader-api.h \
+    AppTinyMesh/Include/sphere.h \
+    AppTinyMesh/Include/tore.h
 
 FORMS += \
     AppTinyMesh/UI/interface.ui
