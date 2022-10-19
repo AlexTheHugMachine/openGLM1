@@ -14,7 +14,9 @@ public:
     void RotationAxeY(matrix m, double angle);
     void RotationAxeZ(matrix m, double angle);
     void Translation(matrix m, float x, float y, float z);
-    void Transpo(matrix m);
+    matrix Transpo(matrix m);
+    void Inverse(matrix m);
+    int determinant(matrix m);
 };
 
 #endif // MATRIX_H

@@ -273,7 +273,6 @@ Mesh::Mesh(const Cone& cone, int nbpoints)
         Vector n = u*cone.height + z*cone.radius;
 
         normals.push_back(n);
-        //AddTriangle(nbpoints+1,1+j, 1+((j+1) % nbpoints) , j+1);
         AddSmoothTriangle(nbpoints+1,nbpoints+1/*astuce*/,1+j,1+j, 1+((j+1) % nbpoints) , 1+((j+1) % nbpoints));
     }
     normals.push_back(Vector(0, 0, 1)); //Sert pour approximer la normale du point du haut
@@ -288,8 +287,8 @@ Mesh::Mesh(const Cylinder& cylinder, int nbpoints)
 
     vertices[nbpoints+1] = Center2;
 
-    varray.reserve((nbpoints ) * 6);
-    narray.reserve((nbpoints ) * 6);
+    varray.reserve((nbpoints) * 6);
+    narray.reserve((nbpoints) * 6);
 
     float step = (2 * M_PI) / nbpoints;
     normals.push_back(Vector(0, 0, 1));
@@ -305,6 +304,7 @@ Mesh::Mesh(const Cylinder& cylinder, int nbpoints)
         AddTriangle(0,1+i, 1+((i+1) % nbpoints) , 0); // 1+ pour gerer le decal du cengtre
     }
 
+    //normals.push_back(Vector(0, 0, 1));
     for (int j = 0; j<nbpoints+1; j++)
     {
         double alpha = step * (j+nbpoints);
@@ -313,7 +313,13 @@ Mesh::Mesh(const Cylinder& cylinder, int nbpoints)
 
         vertices[j+2+nbpoints] = Vector(x2, y2, (double)(0.0 + Center2[2]));
 
-        AddTriangle(nbpoints+1,1+j+nbpoints, 2+((j+nbpoints) % nbpoints+nbpoints) , 0); // 1+ pour gerer le decal du cengtre
+        AddTriangle(nbpoints+1, 1+j+nbpoints, 2+((j+nbpoints) % nbpoints+nbpoints) , 0); // 1+ pour gerer le decal du cengtre
+    }
+
+    for (int k = 0; k<nbpoints+1; k++)
+    {
+        AddTriangle(k+nbpoints, 1+k+nbpoints, ((k +nbpoints)%nbpoints), 0);
+        AddTriangle(k+1, (k%nbpoints)+(nbpoints+1), (k%nbpoints), 0);
     }
 }
 

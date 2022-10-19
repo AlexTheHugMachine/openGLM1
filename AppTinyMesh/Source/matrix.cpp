@@ -80,7 +80,7 @@ void matrix::RotationAxeY(matrix m, double angle)
         }
 }
 
-oid matrix::RotationAxeZ(matrix m, double angle)
+void matrix::RotationAxeZ(matrix m, double angle)
 {
     double AngleRadians = Math::DegreeToRadian(angle);
 
@@ -106,12 +106,7 @@ oid matrix::RotationAxeZ(matrix m, double angle)
         }
 }
 
-void matrix::Translation(matrix m, float x, float y, float z)
-{
-    matrix TranslationMatrix;
-}
-
-void matrix::Transpo(matrix m)
+matrix matrix::Transpo(matrix m)
 {
     matrix TranspoMatrix = m;
 
@@ -121,4 +116,19 @@ void matrix::Transpo(matrix m)
     m.MatrixTab[0][2] = TranspoMatrix.MatrixTab[2][0];
     m.MatrixTab[2][1] = TranspoMatrix.MatrixTab[1][2];
     m.MatrixTab[1][2] = TranspoMatrix.MatrixTab[2][1];
+
+    return m;
+}
+
+int matrix::determinant(matrix m)
+{
+    int delta;
+}
+
+void matrix::Inverse(matrix m)
+{
+    matrix TranspoMatrix;
+    TranspoMatrix = TranspoMatrix.Transpo(TranspoMatrix);
+
+    int determinant1;
 }
