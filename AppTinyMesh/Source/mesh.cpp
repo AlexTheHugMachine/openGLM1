@@ -305,6 +305,7 @@ Mesh::Mesh(const Cylinder& cylinder, int nbpoints)
     narray.reserve((nbpoints) * 6);
 
     float step = (2 * M_PI) / nbpoints;
+    normals.push_back(Vector(0, 0, -1));
     normals.push_back(Vector(0, 0, 1));
 
     for (int i = 0; i<nbpoints; i++)
@@ -319,27 +320,69 @@ Mesh::Mesh(const Cylinder& cylinder, int nbpoints)
     }
 
     //normals.push_back(Vector(0, 0, 1));
-    for (int j = 0; j<nbpoints+1; j++)
+    for (int j = 0; j<nbpoints; j++)
     {
-        double alpha = step * (j+nbpoints);
+        double alpha = step * j;
         double x2 = Center2[0] + (cylinder.radius * cos(alpha));
         double y2 = Center2[1] + (cylinder.radius * sin(alpha));
 
         vertices[j+2+nbpoints] = Vector(x2, y2, (double)(0.0 + Center2[2]));
 
-        AddTriangle(nbpoints+1, 1+j+nbpoints, 2+((j+nbpoints) % nbpoints+nbpoints) , 0); // 1+ pour gerer le decal du cengtre
-    }
+        Vector u = Vector(x2, y2, 0);
+        Vector z = Vector(0, 0, 1);
+        Vector n = u*cylinder.height + z*cylinder.radius;
 
-    for (int k = 0; k<nbpoints+1; k++)
-    {
-        AddTriangle(k+nbpoints, 1+k+nbpoints, ((k +nbpoints)%nbpoints), 0);
-        AddTriangle(k+1, (k%nbpoints)+(nbpoints+1), (k%nbpoints), 0);
+        normals.push_back(n);
+
+        AddTriangle(nbpoints+1, 2+j+nbpoints, nbpoints+2+(j+1)%nbpoints , 1); // 1+ pour gerer le decal du cengtre
+
+        //AddSmoothTriangle(j+nbpoints+2, j+nbpoints+2, nbpoints+2+(j+1)%nbpoints, nbpoints+2+(j+1)%nbpoints, 1+(j%nbpoints), 1+(j%nbpoints));
+        //AddSmoothTriangle(j+1, j+1, 1+(j+1)%nbpoints, 1+(j+1)%nbpoints, nbpoints+2+(j+1)%nbpoints, nbpoints+2+(j+1)%nbpoints);
+        AddTriangle(j+nbpoints+2, nbpoints+2+(j+1)%nbpoints, 1+(j%nbpoints), j+2);
+        AddTriangle(j+1, 1+(j+1)%nbpoints, nbpoints+2+(j+1)%nbpoints, j+2);
     }
 }
 
 /*Mesh::Mesh(const Sphere& sphere, int nbpoints)
 {
-
+    vertices.resize((nbpoints * nbpoints) + 2);
+    vertices[nbpoints+1] = Vector(0, 0, 1);
+    normals.push_back(Vector(0, 0, 1));
+    for(int i = 0; i < nbpoints; i++)
+    {
+        double phi = M_PI * double(i+1) / double(nbpoints);
+        for(int j=0; j<nbpoints; j++)
+        {
+            double theta = 2.0 * M_PI * double(j) / double(nbpoints);
+            double x = sin(phi) * cos(theta);
+            double y = sin(phi) * sin(theta);
+            double z = cos(phi);
+            vertices[(j * nbpoints) + (i + 1)] = Vector(x, y, z);
+        }
+    }
+    vertices[0] = Vector(0, 0, -1);
+    for(int i = 0; i<nbpoints; i++)
+    {
+        int i0 = i +1;
+        int i1 = (i + 1) % nbpoints + 1;
+        AddTriangle(nbpoints+1, i1, i0, 0);
+        i0 = i + nbpoints * (nbpoints - 2) + 1;
+        i1 = (i + 1) % nbpoints + nbpoints * (nbpoints - 2) + 1;
+        AddTriangle(0, i0, i1, 0);
+    }
+    for(int j = 0; j<nbpoints - 2; j++)
+    {
+        int j0 = j*nbpoints +1;
+        int j1 = (j + 1) * nbpoints + 1;
+        for (int i = 0; i<nbpoints; i++)
+        {
+            int i0 = j0 + i;
+            int i1 = j0 + (i +1 ) % nbpoints;
+            int i2 = j1 + (i + 1) % nbpoints;
+            int i3 = j1 + i;
+            AddQuadrangle(i0, i1, i2, i3);
+        }
+    }
 }*/
 /*!
  * \brief Create the mesh for a sphere with a degree of detail
@@ -351,7 +394,7 @@ Mesh::Mesh(const Sphere& sphere, int nbpoints)
     //float deltaTheta = (2 * M_PI) * (nbpoints + 2); // + 2 To count the level of both poles.
     //float deltaPhi = M_PI * nbpoints;
     double deltaTheta = (2 * M_PI) / nbpoints;
-    double deltaPhi = M_PI / nbpoints;
+    double deltaPhi = M_PI / (nbpoints-1);
     float theta, phi;
 
     // Vertices
@@ -378,25 +421,31 @@ Mesh::Mesh(const Sphere& sphere, int nbpoints)
 
 
     // Reserve space for the triangle array ; base + cone triangle = 2*div
-    varray.reserve((nbpoints * 2) * (nbpoints - 1) + (2 * nbpoints)); // div rings -> (div - 1) slices of (2 * div) Triangles + (2 * div) Triangles linking with poles
-    narray.reserve((nbpoints * 2) * (nbpoints - 1) + (2 * nbpoints));
+    varray.reserve((nbpoints * 3) * 2 + (nbpoints * (nbpoints * 3) * 2) * 2); // div rings -> (div - 1) slices of (2 * div) Triangles + (2 * div) Triangles linking with poles
+    narray.reserve((nbpoints * 3) * 2 + (nbpoints * (nbpoints * 3) * 2) * 2);
 
     // North Pole Triangles
-    for (int k = 1; k <= nbpoints; k++)
+    for (int k = 0; k < nbpoints; k++)
     {
         Triangle t(vertices[k], vertices[0], vertices[(k % nbpoints) + 1]);
         normals.push_back(t.Normal());
         AddTriangle(k, 0, (k % nbpoints) + 1, k - 1);
     }
     // Sphere Triangles
-    for (int m = 1; m < nbpoints; m++)
+    for (int m = 0; m < nbpoints; m++)
     {
-        for (int n = 1; n < nbpoints; n++)
+        //int ia = (m * nbpoints) + 1;
+        //int ib = ((m + 1) * nbpoints) + 1;
+        for (int n = 0; n < nbpoints; n++)
         {
             int ia = (m * nbpoints) + n;
             int ib = ((m - 1) * nbpoints) + n;
             int ic = ((m - 1) * nbpoints) + (n % nbpoints) + 1;
             int id = (m * nbpoints) + (n % nbpoints) + 1;
+            //int ic = ia + (n + 1) % nbpoints;
+            //int id = ib + (n + 1) % nbpoints;
+            //int ian = ia + n;
+            //int ibn = ib + n;
 
             Triangle abc(vertices[ia], vertices[ib], vertices[ic]);
             normals.push_back(abc.Normal());
@@ -405,10 +454,12 @@ Mesh::Mesh(const Sphere& sphere, int nbpoints)
             Triangle acd(vertices[ia], vertices[ic], vertices[id]);
             normals.push_back(acd.Normal());
             AddTriangle(ia, ic, id, nbpoints + ((m - 1) * 2 * nbpoints) + (2 * (n - 1)) + 1);
+            //normals.push_back(Vector(0,0,1));
+            //AddQuadrangle(ian, ic, id, ibn);
         }
     }
     // South Pole Triangle
-    for (int o = 1; o <= nbpoints; o++)
+    for (int o = 0; o < nbpoints; o++)
     {
         int ia = ((nbpoints - 1) * nbpoints) + o;
         int ib = (nbpoints * nbpoints) + 1;
@@ -427,19 +478,26 @@ Mesh::Mesh(const Sphere& sphere, int nbpoints)
  */
 Mesh::Mesh(const Tore& tore, int nbpoints_radial, int nbpoints_tubular)
 {
-    /*vertices.resize(nbpoints_radial * nbpoints_tubular);
+    vertices.resize(nbpoints_radial * nbpoints_tubular);
     varray.reserve(nbpoints_radial * nbpoints_tubular);
     narray.reserve(nbpoints_radial * nbpoints_tubular);
+
     for(int i=0; i<nbpoints_radial; i++)
     {
-        for(int j=0; j<nbpoints_tubular; i++)
+        for(int j=0; j<nbpoints_tubular; j++)
         {
             float u = (float)j / nbpoints_tubular * M_PI * 2.0;
             float v = (float)i / nbpoints_radial * M_PI * 2.0;
             float x = (tore.radius + tore.thickness * cos(v)) * cos(u);
             float y = (tore.radius + tore.thickness * cos(v)) * sin(u);
             float z = tore.thickness * sin(v);
-            vertices[j] = Vector(x, y, z);
+            vertices[(i*nbpoints_tubular) + j] = Vector(x, y, z);
+
+            Vector u2 = Vector(x, y, 0);
+            Vector z2 = Vector(0, 0, z);
+            Vector n = u2*tore.thickness + z2*tore.radius;
+
+            normals.push_back(n);
         }
     }
 
@@ -453,14 +511,39 @@ Mesh::Mesh(const Tore& tore, int nbpoints_radial, int nbpoints_tubular)
             int i1 = i*nbpoints_tubular + j_next;
             int i2 = i_next * nbpoints_tubular + j_next;
             int i3 = i_next * nbpoints_tubular + j;
-
+            AddQuadrangle(i0, i1, i2, i3);
         }
     }
+}
 
-    for(int k=0; k<nbpoints_radial; k++)
-    {
-        //AddTriangle(k, 0, (k%nbpoints_radial)+1, 0);
-    }*/
+/*!
+ * \brief Merge two mesh in one single mesh
+ * \param m Mesh which we want to merge with
+ */
+void Mesh::Merge(Mesh m) {
+    int oldvsize = vertices.size();
+    int oldnsize = normals.size();
+    int newvsize = vertices.size() + m.vertices.size();
+    int newnsize = normals.size() + m.normals.size();
+    int newasize = varray.size() + m.varray.size();
+
+    vertices.resize(newvsize);
+    normals .resize(newnsize);
+    narray.reserve(newasize);
+    varray.reserve(newasize);
+
+    for (int v = 0; v < m.vertices.size(); v++) {
+        vertices[oldvsize + v] = m.vertices[v];
+    }
+
+    for (int n = 0; n < m.normals.size(); n++) {
+        normals[oldnsize + n] = m.normals[n];
+    }
+
+    for (int a = 0; a < m.varray.size(); a++) {
+        varray.push_back(oldvsize + m.varray[a]);
+        narray.push_back(oldnsize + m.narray[a]);
+    }
 }
 
 /*!

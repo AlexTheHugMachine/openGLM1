@@ -19,6 +19,7 @@ SOURCES += \
     AppTinyMesh/Source/implicits.cpp \
     AppTinyMesh/Source/main.cpp \
     AppTinyMesh/Source/camera.cpp \
+    AppTinyMesh/Source/matrix.cpp \
     AppTinyMesh/Source/mesh.cpp \
     AppTinyMesh/Source/meshcolor.cpp \
     AppTinyMesh/Source/mesh-widget.cpp \
@@ -38,6 +39,7 @@ HEADERS += \
     AppTinyMesh/Include/disk.h \
     AppTinyMesh/Include/implicits.h \
     AppTinyMesh/Include/mathematics.h \
+    AppTinyMesh/Include/matrix.h \
     AppTinyMesh/Include/mesh.h \
     AppTinyMesh/Include/meshcolor.h \
     AppTinyMesh/Include/qte.h \

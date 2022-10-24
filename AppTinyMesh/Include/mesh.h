@@ -131,6 +131,8 @@ public:
   explicit Mesh(const Sphere&, int nbpoints);
   explicit Mesh(const Tore&, int nbpoints_radial, int nbpoints_tubular);
 
+  void Merge(Mesh m);
+
   void Load(const QString&);
   void SaveObj(const QString&, const QString&) const;
 protected:

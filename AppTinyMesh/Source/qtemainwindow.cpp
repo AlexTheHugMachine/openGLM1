@@ -86,8 +86,17 @@ void MainWindow::ConeMesh()
 void MainWindow::CylinderMesh()
 {
     Vector center1(0, 0, 0);
+    Vector center2(0, 0, 5);
+    Vector up1(0, 1, 0);
 
     Mesh cylinderMesh = Mesh(Cylinder(5.0, 5.0, center1), 15);
+    Mesh diskMesh = Mesh(Disk(10.0, up1, center2), 15);
+    Mesh ToreMesh = Mesh(Tore(5.0, 2.0), 20, 20);
+    Mesh sphereMesh = Mesh(Sphere(5.0, center1), 15);
+
+    cylinderMesh.Merge(diskMesh);
+    cylinderMesh.Merge(ToreMesh);
+    cylinderMesh.Merge(sphereMesh);
 
     std::vector<Color> cols;
     cols.resize(cylinderMesh.Vertexes());
@@ -113,7 +122,7 @@ void MainWindow::SphereMesh()
 
 void MainWindow::ToreMesh()
 {
-    Mesh ToreMesh = Mesh(Tore(5.0, 5.0), 15, 15);
+    Mesh ToreMesh = Mesh(Tore(5.0, 2.0), 20, 20);
 
     std::vector<Color> cols;
     cols.resize(ToreMesh.Vertexes());

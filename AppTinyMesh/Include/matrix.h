@@ -9,14 +9,18 @@ public:
     matrix();
     float MatrixTab[3][3];
     matrix IdentMatrix();
-    matrix Homothetie(matrix m);
-    matrix RotationAxeX(matrix m, double angle);
-    matrix RotationAxeY(matrix m, double angle);
-    matrix RotationAxeZ(matrix m, double angle);
-    matrix Translation(matrix m, float x, float y, float z);
-    matrix Transpo(matrix m);
-    matrix Inverse(matrix m);
-    int determinant(matrix m);
+    matrix Homothetie();
+    matrix RotationAxeX(double angle);
+    matrix RotationAxeY(double angle);
+    matrix RotationAxeZ(double angle);
+    matrix Transpo();
+    matrix Inverse();
+    matrix constructMatrixDet();
+    int detSusMatrix(int indexI, int indexT);
+    int determinant();
+    matrix operator+(matrix m2);
+    matrix operator*(matrix m2);
+    matrix operator*(float x);
 };
 
 #endif // MATRIX_H
