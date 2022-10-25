@@ -27,6 +27,7 @@ public:
 public slots:
   void editingSceneLeft(const Ray&);
   void editingSceneRight(const Ray&);
+  void AmongusMesh();
   void BoxMeshExample();
   void DiskMesh();
   void ConeMesh();

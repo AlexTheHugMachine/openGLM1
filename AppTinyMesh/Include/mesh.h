@@ -8,6 +8,7 @@
 #include "tore.h"
 #include "ray.h"
 #include "mathematics.h"
+#include "matrix.h"
 
 // Triangle
 class Triangle
@@ -132,6 +133,11 @@ public:
   explicit Mesh(const Tore&, int nbpoints_radial, int nbpoints_tubular);
 
   void Merge(Mesh m);
+  void RotateX(double angle);
+  void RotateY(double angle);
+  void RotateZ(double angle);
+  void Translation(Vector v);
+  void ScaleWithVector(Vector v);
 
   void Load(const QString&);
   void SaveObj(const QString&, const QString&) const;

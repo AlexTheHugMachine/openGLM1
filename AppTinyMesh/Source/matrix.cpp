@@ -19,6 +19,19 @@ matrix::matrix()
     }
 }
 
+matrix::matrix(float aa, float ab, float ac, float ba, float bb, float bc, float ca, float cb, float cc)
+{
+    MatrixTab[0][0] = aa;
+    MatrixTab[0][1] = ab;
+    MatrixTab[0][2] = ac;
+    MatrixTab[1][0] = ba;
+    MatrixTab[1][1] = bb;
+    MatrixTab[1][2] = bc;
+    MatrixTab[2][0] = ca;
+    MatrixTab[2][1] = cb;
+    MatrixTab[2][2] = cc;
+}
+
 /*!
  * \brief Create an identity Matrix 3x3
  * \return An Identity Matrix 3x3
@@ -61,100 +74,67 @@ matrix matrix::Homothetie()
 /*!
  * \brief Applies a rotation on the x axis
  * \param angle Angle in degrees
- * \return The matrix with x axis rotation applied
+ * \return The x axis rotation matrix
  */
-matrix matrix::RotationAxeX(double angle)
+void matrix::RotationAxeX(double angle)
 {
     double AngleRadians = Math::DegreeToRadian(angle);
 
-    matrix m;
-    matrix MatriceX;
-    MatriceX.MatrixTab[0][0] = 1;
-    MatriceX.MatrixTab[1][0] = 0;
-    MatriceX.MatrixTab[2][0] = 0;
-    MatriceX.MatrixTab[0][1] = 0;
-    MatriceX.MatrixTab[0][2] = 0;
+    MatrixTab[0][0] = 1;
+    MatrixTab[1][0] = 0;
+    MatrixTab[2][0] = 0;
+    MatrixTab[0][1] = 0;
+    MatrixTab[0][2] = 0;
 
-    MatriceX.MatrixTab[1][1] = cos(AngleRadians);
-    MatriceX.MatrixTab[2][2] = cos(AngleRadians);
+    MatrixTab[1][1] = cos(AngleRadians);
+    MatrixTab[2][2] = cos(AngleRadians);
 
-    MatriceX.MatrixTab[1][2] = sin(AngleRadians);
-    MatriceX.MatrixTab[2][1] = -sin(AngleRadians);
-
-    for (int i = 0; i<3; i++)
-        {
-            for (int j = 0; i<3; i++)
-            {
-                m.MatrixTab[i][j] = MatrixTab[i][j] * MatriceX.MatrixTab[i][j];
-            }
-        }
-    return m;
+    MatrixTab[1][2] = sin(AngleRadians);
+    MatrixTab[2][1] = -sin(AngleRadians);
 }
 
 /*!
  * \brief Applies a rotation on the y axis
  * \param angle Angle in degrees
- * \return The matrix with y axis rotation applied
+ * \return The y axis rotation matrix
  */
-matrix matrix::RotationAxeY(double angle)
+void matrix::RotationAxeY(double angle)
 {
     double AngleRadians = Math::DegreeToRadian(angle);
 
-    matrix m;
-    matrix MatriceY;
-    MatriceY.MatrixTab[0][0] = cos(AngleRadians);
-    MatriceY.MatrixTab[2][2] = cos(AngleRadians);
+    MatrixTab[0][0] = cos(AngleRadians);
+    MatrixTab[2][2] = cos(AngleRadians);
 
-    MatriceY.MatrixTab[2][0] = -sin(AngleRadians);
-    MatriceY.MatrixTab[0][2] = sin(AngleRadians);
+    MatrixTab[2][0] = -sin(AngleRadians);
+    MatrixTab[0][2] = sin(AngleRadians);
 
-    MatriceY.MatrixTab[1][0] = 0;
-    MatriceY.MatrixTab[0][1] = 0;
-    MatriceY.MatrixTab[1][1] = 1;
-    MatriceY.MatrixTab[2][1] = 0;
-    MatriceY.MatrixTab[1][2] = 0;
-
-    for (int i = 0; i<3; i++)
-        {
-            for (int j = 0; i<3; i++)
-            {
-                m.MatrixTab[i][j] = MatrixTab[i][j] * MatriceY.MatrixTab[i][j];
-            }
-        }
-    return m;
+    MatrixTab[1][0] = 0;
+    MatrixTab[0][1] = 0;
+    MatrixTab[1][1] = 1;
+    MatrixTab[2][1] = 0;
+    MatrixTab[1][2] = 0;
 }
 
 /*!
  * \brief Applies a rotation on the z axis
  * \param angle Angle in degrees
- * \return The matrix with z axis rotation applied
+ * \return The z axis rotation matrix
  */
-matrix matrix::RotationAxeZ(double angle)
+void matrix::RotationAxeZ(double angle)
 {
     double AngleRadians = Math::DegreeToRadian(angle);
 
-    matrix m;
-    matrix MatriceZ;
-    MatriceZ.MatrixTab[0][0] = cos(AngleRadians);
-    MatriceZ.MatrixTab[1][1] = cos(AngleRadians);
+    MatrixTab[0][0] = cos(AngleRadians);
+    MatrixTab[1][1] = cos(AngleRadians);
 
-    MatriceZ.MatrixTab[1][0] = -sin(AngleRadians);
-    MatriceZ.MatrixTab[0][1] = sin(AngleRadians);
+    MatrixTab[1][0] = -sin(AngleRadians);
+    MatrixTab[0][1] = sin(AngleRadians);
 
-    MatriceZ.MatrixTab[2][2] = 1;
-    MatriceZ.MatrixTab[0][2] = 0;
-    MatriceZ.MatrixTab[1][2] = 0;
-    MatriceZ.MatrixTab[2][1] = 0;
-    MatriceZ.MatrixTab[2][0] = 0;
-
-    for (int i = 0; i<3; i++)
-        {
-            for (int j = 0; i<3; i++)
-            {
-                m.MatrixTab[i][j] = MatrixTab[i][j] * MatriceZ.MatrixTab[i][j];
-            }
-        }
-    return m;
+    MatrixTab[2][2] = 1;
+    MatrixTab[0][2] = 0;
+    MatrixTab[1][2] = 0;
+    MatrixTab[2][1] = 0;
+    MatrixTab[2][0] = 0;
 }
 
 /*!
@@ -299,4 +279,13 @@ matrix matrix::operator*(float x)
         }
     }
     return res;
+}
+
+matrix matrix::operator*(Vector v)
+{
+    matrix m;
+    m.MatrixTab[0][0] = v[0] * MatrixTab[0][0] + v[1] * MatrixTab[0][1] + v[2] * MatrixTab[0][2];
+    m.MatrixTab[1][1] = v[0] * MatrixTab[1][0] + v[1] * MatrixTab[1][1] + v[2] * MatrixTab[1][2];
+    m.MatrixTab[2][2] = v[0] * MatrixTab[2][0] + v[1] * MatrixTab[2][1] + v[2] * MatrixTab[2][2];
+    return m;
 }

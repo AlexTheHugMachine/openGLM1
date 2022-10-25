@@ -243,7 +243,7 @@ Mesh::Mesh(const Cone& cone, int nbpoints)
     // Vertices
     vertices.resize(nbpoints + 2);
     vertices[0] = cone.Center;
-    normals.push_back(Vector(0, 0, 1));
+    normals.push_back(Vector(0, 0, -1));
 
     float step = (2 * M_PI) / nbpoints;
     for (int i = 1; i <= nbpoints; i++)
@@ -262,9 +262,6 @@ Mesh::Mesh(const Cone& cone, int nbpoints)
     {
         AddTriangle(0, 1+k, 1+((k+1) % nbpoints), 0);
     }
-
-    // Scale to return Disk so its normal face downward.
-    this->Scale(-1);
 
     // Add tip of Cone and triangles
     vertices[nbpoints+1] = Vector(cone.Center[0], cone.Center[1], cone.Center[2] + cone.height);
@@ -336,54 +333,11 @@ Mesh::Mesh(const Cylinder& cylinder, int nbpoints)
 
         AddTriangle(nbpoints+1, 2+j+nbpoints, nbpoints+2+(j+1)%nbpoints , 1); // 1+ pour gerer le decal du cengtre
 
-        //AddSmoothTriangle(j+nbpoints+2, j+nbpoints+2, nbpoints+2+(j+1)%nbpoints, nbpoints+2+(j+1)%nbpoints, 1+(j%nbpoints), 1+(j%nbpoints));
-        //AddSmoothTriangle(j+1, j+1, 1+(j+1)%nbpoints, 1+(j+1)%nbpoints, nbpoints+2+(j+1)%nbpoints, nbpoints+2+(j+1)%nbpoints);
         AddTriangle(j+nbpoints+2, nbpoints+2+(j+1)%nbpoints, 1+(j%nbpoints), j+2);
         AddTriangle(j+1, 1+(j+1)%nbpoints, nbpoints+2+(j+1)%nbpoints, j+2);
     }
 }
 
-/*Mesh::Mesh(const Sphere& sphere, int nbpoints)
-{
-    vertices.resize((nbpoints * nbpoints) + 2);
-    vertices[nbpoints+1] = Vector(0, 0, 1);
-    normals.push_back(Vector(0, 0, 1));
-    for(int i = 0; i < nbpoints; i++)
-    {
-        double phi = M_PI * double(i+1) / double(nbpoints);
-        for(int j=0; j<nbpoints; j++)
-        {
-            double theta = 2.0 * M_PI * double(j) / double(nbpoints);
-            double x = sin(phi) * cos(theta);
-            double y = sin(phi) * sin(theta);
-            double z = cos(phi);
-            vertices[(j * nbpoints) + (i + 1)] = Vector(x, y, z);
-        }
-    }
-    vertices[0] = Vector(0, 0, -1);
-    for(int i = 0; i<nbpoints; i++)
-    {
-        int i0 = i +1;
-        int i1 = (i + 1) % nbpoints + 1;
-        AddTriangle(nbpoints+1, i1, i0, 0);
-        i0 = i + nbpoints * (nbpoints - 2) + 1;
-        i1 = (i + 1) % nbpoints + nbpoints * (nbpoints - 2) + 1;
-        AddTriangle(0, i0, i1, 0);
-    }
-    for(int j = 0; j<nbpoints - 2; j++)
-    {
-        int j0 = j*nbpoints +1;
-        int j1 = (j + 1) * nbpoints + 1;
-        for (int i = 0; i<nbpoints; i++)
-        {
-            int i0 = j0 + i;
-            int i1 = j0 + (i +1 ) % nbpoints;
-            int i2 = j1 + (i + 1) % nbpoints;
-            int i3 = j1 + i;
-            AddQuadrangle(i0, i1, i2, i3);
-        }
-    }
-}*/
 /*!
  * \brief Create the mesh for a sphere with a degree of detail
  * \param sphere Mathematic sphere which we want to generate the mesh
@@ -391,16 +345,13 @@ Mesh::Mesh(const Cylinder& cylinder, int nbpoints)
  */
 Mesh::Mesh(const Sphere& sphere, int nbpoints)
 {
-    //float deltaTheta = (2 * M_PI) * (nbpoints + 2); // + 2 To count the level of both poles.
-    //float deltaPhi = M_PI * nbpoints;
-    double deltaTheta = (2 * M_PI) / nbpoints;
-    double deltaPhi = M_PI / (nbpoints-1);
+    double deltaPhi = (2 * M_PI) / (nbpoints - 1);
+    double deltaTheta = M_PI / nbpoints;
     float theta, phi;
 
     // Vertices
     vertices.resize((nbpoints * nbpoints) + 2); // div * div vertices + 2 poles.
     vertices[0] = Vector(sphere.center[0], sphere.center[1], sphere.center[2] + sphere.radius); // north pole
-    //vertices[0] = Vector(center[0], center[1] + ray, center[2]); // north pole
 
     for (int j = 0; j < nbpoints; j++)
     {
@@ -413,10 +364,8 @@ Mesh::Mesh(const Sphere& sphere, int nbpoints)
             double y = sphere.center[1] + sphere.radius * (float)(sin(theta) * sin(phi));
             double z = sphere.center[2] + sphere.radius * (float)(cos(theta));
             vertices[(j * nbpoints) + (i + 1)] = Vector(x, y, z);
-
         }
     }
-    //vertices[(div * div) + 1] = Vector(center[0], center[1] - ray, center[2]); // south pole
     vertices[(nbpoints * nbpoints) + 1] = Vector(sphere.center[0], sphere.center[1], sphere.center[2] - sphere.radius); // south pole
 
 
@@ -429,23 +378,17 @@ Mesh::Mesh(const Sphere& sphere, int nbpoints)
     {
         Triangle t(vertices[k], vertices[0], vertices[(k % nbpoints) + 1]);
         normals.push_back(t.Normal());
-        AddTriangle(k, 0, (k % nbpoints) + 1, k - 1);
+        AddTriangle(k, 0, (k % nbpoints) + 1, k-1);
     }
     // Sphere Triangles
     for (int m = 0; m < nbpoints; m++)
     {
-        //int ia = (m * nbpoints) + 1;
-        //int ib = ((m + 1) * nbpoints) + 1;
         for (int n = 0; n < nbpoints; n++)
         {
             int ia = (m * nbpoints) + n;
             int ib = ((m - 1) * nbpoints) + n;
             int ic = ((m - 1) * nbpoints) + (n % nbpoints) + 1;
             int id = (m * nbpoints) + (n % nbpoints) + 1;
-            //int ic = ia + (n + 1) % nbpoints;
-            //int id = ib + (n + 1) % nbpoints;
-            //int ian = ia + n;
-            //int ibn = ib + n;
 
             Triangle abc(vertices[ia], vertices[ib], vertices[ic]);
             normals.push_back(abc.Normal());
@@ -454,11 +397,9 @@ Mesh::Mesh(const Sphere& sphere, int nbpoints)
             Triangle acd(vertices[ia], vertices[ic], vertices[id]);
             normals.push_back(acd.Normal());
             AddTriangle(ia, ic, id, nbpoints + ((m - 1) * 2 * nbpoints) + (2 * (n - 1)) + 1);
-            //normals.push_back(Vector(0,0,1));
-            //AddQuadrangle(ian, ic, id, ibn);
         }
     }
-    // South Pole Triangle
+    /*// South Pole Triangle
     for (int o = 0; o < nbpoints; o++)
     {
         int ia = ((nbpoints - 1) * nbpoints) + o;
@@ -467,7 +408,7 @@ Mesh::Mesh(const Sphere& sphere, int nbpoints)
         Triangle t(vertices[ia], vertices[ib], vertices[ic]);
         normals.push_back(t.Normal());
         AddTriangle(ia, ib, ic, (nbpoints * 2) * (nbpoints - 1) + nbpoints - 1 + o);
-    }
+    }*/
 }
 
 /*!
@@ -543,6 +484,67 @@ void Mesh::Merge(Mesh m) {
     for (int a = 0; a < m.varray.size(); a++) {
         varray.push_back(oldvsize + m.varray[a]);
         narray.push_back(oldnsize + m.narray[a]);
+    }
+}
+
+void Mesh::RotateX(double angle)
+{
+    matrix MatriceX;
+    MatriceX.RotationAxeX(angle);
+
+    for (int i = 0; i < vertices.size(); ++i)
+    {
+        Vector vertex = Vector(vertices[i][0], vertices[i][1], vertices[i][2]);
+        matrix newm = MatriceX * vertex;
+        vertices[i] = Vector(newm.MatrixTab[0][0], newm.MatrixTab[1][1], newm.MatrixTab[2][2]);
+    }
+}
+
+void Mesh::RotateY(double angle)
+{
+    matrix MatriceY;
+    MatriceY.RotationAxeY(angle);
+
+    for (int i = 0; i < vertices.size(); ++i)
+    {
+        Vector vertex = Vector(vertices[i][0], vertices[i][1], vertices[i][2]);
+        matrix newm = MatriceY * vertex;
+        vertices[i] = Vector(newm.MatrixTab[0][0], newm.MatrixTab[1][1], newm.MatrixTab[2][2]);
+    }
+}
+
+void Mesh::RotateZ(double angle)
+{
+    matrix MatriceZ;
+    MatriceZ.RotationAxeZ(angle);
+
+    for (int i = 0; i < vertices.size(); ++i)
+    {
+        Vector vertex = Vector(vertices[i][0], vertices[i][1], vertices[i][2]);
+        matrix newm = MatriceZ * vertex;
+        vertices[i] = Vector(newm.MatrixTab[0][0], newm.MatrixTab[1][1], newm.MatrixTab[2][2]);
+    }
+}
+
+void Mesh::Translation(Vector v)
+{
+    matrix Translation(v[0], 0, 0, 0, v[1], 0, 0, 0, v[2]);
+    for (int i = 0; i < vertices.size(); ++i)
+    {
+        matrix Verticesi(vertices[i][0], 0, 0, 0, vertices[i][1], 0, 0, 0, vertices[i][2]);
+        matrix newm = Translation + Verticesi;
+        vertices[i] = Vector(newm.MatrixTab[0][0], newm.MatrixTab[1][1], newm.MatrixTab[2][2]);
+    }
+}
+
+void Mesh::ScaleWithVector(Vector v)
+{
+    matrix Scale(v[0], 0, 0, 0, v[1], 0, 0, 0, v[2]);
+    for (int i = 0; i < vertices.size(); ++i)
+    {
+        matrix Verticesi(vertices[i][0], 0, 0, 0, vertices[i][1], 0, 0, 0, vertices[i][2]);
+        matrix newm = Scale * Verticesi;
+        vertices[i] = Vector(newm.MatrixTab[0][0], newm.MatrixTab[1][1], newm.MatrixTab[2][2]);
     }
 }
 

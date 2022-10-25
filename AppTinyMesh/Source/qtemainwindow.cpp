@@ -28,6 +28,7 @@ MainWindow::~MainWindow()
 void MainWindow::CreateActions()
 {
 	// Buttons
+    connect(uiw->amongusButton, SIGNAL(clicked()), this, SLOT(AmongusMesh()));
     connect(uiw->boxMesh, SIGNAL(clicked()), this, SLOT(BoxMeshExample()));
     connect(uiw->DiskButton, SIGNAL(clicked()), this, SLOT(DiskMesh()));
     connect(uiw->ConeButton, SIGNAL(clicked()), this, SLOT(ConeMesh()));
@@ -53,6 +54,66 @@ void MainWindow::editingSceneRight(const Ray&)
 {
 }
 
+void MainWindow::AmongusMesh()
+{
+    Vector center1(0, 0, 0);
+
+    Mesh AmongUs;
+    Mesh cylinderMesh1 = Mesh(Cylinder(5.0, 5.0, center1), 14);
+    Mesh cylinderMesh2 = Mesh(Cylinder(5.0, 5.0, center1), 14);
+    Mesh cylinderMesh3 = Mesh(Cylinder(5.0, 5.0, center1), 14);
+    Mesh sphereMesh1 = Mesh(Sphere(5.0, center1), 15);
+    Mesh sphereMesh2 = Mesh(Sphere(5.0, center1), 15);
+    Mesh sphereMesh3 = Mesh(Sphere(5.0, center1), 15);
+    Mesh coneMesh = Mesh(Cone(5.0, 5.0, center1), 15);
+    Mesh ToreMesh1 = Mesh(Tore(5.0, 2.0), 8, 8);
+    Mesh ToreMesh2 = Mesh(Tore(5.0, 2.0), 8, 8);
+
+    ToreMesh1.ScaleWithVector(Vector(0.37, 0.37, 0.37));
+    ToreMesh1.Translation(Vector(3, 0, -4));
+
+    ToreMesh2.ScaleWithVector(Vector(0.37, 0.37, 0.37));
+    ToreMesh2.Translation(Vector(-3, 0, -4));
+
+    coneMesh.Translation(Vector(0, 0, 16));
+    coneMesh.ScaleWithVector(Vector(1.5, 1.5, 0.7));
+
+    cylinderMesh1.ScaleWithVector(Vector(1, 1, 2));
+
+    cylinderMesh2.Translation(Vector(7.5, 0, -5));
+    cylinderMesh2.ScaleWithVector(Vector(0.4, 0.4, 0.8));
+
+    cylinderMesh3.Translation(Vector(-7.5, 0, -5));
+    cylinderMesh3.ScaleWithVector(Vector(0.4, 0.4, 0.8));
+
+    sphereMesh1.Translation(Vector(0, 0, 14));
+    sphereMesh1.ScaleWithVector(Vector(1, 1, 0.7));
+    //sphereMesh1.RotateZ(180);
+
+    sphereMesh2.Translation(Vector(0, 7, 15));
+    sphereMesh2.ScaleWithVector(Vector(0.8, 0.5, 0.5));
+
+    sphereMesh3.Translation(Vector(0, -8, 7));
+    sphereMesh3.ScaleWithVector(Vector(0.6, 0.6, 0.9));
+
+    AmongUs.Merge(cylinderMesh1);
+    AmongUs.Merge(cylinderMesh2);
+    AmongUs.Merge(cylinderMesh3);
+    AmongUs.Merge(sphereMesh1);
+    AmongUs.Merge(sphereMesh2);
+    AmongUs.Merge(sphereMesh3);
+    AmongUs.Merge(coneMesh);
+    AmongUs.Merge(ToreMesh1);
+    AmongUs.Merge(ToreMesh2);
+
+    std::vector<Color> cols;
+    cols.resize(AmongUs.Vertexes());
+    for (size_t i = 0; i < cols.size(); i++)
+        cols[i] = Color(200,200,200); //Color(double(i) / 6.0, fmod(double(i) * 39.478378, 1.0), 0.0);
+    meshColor = MeshColor(AmongUs, cols, AmongUs.VertexIndexes());
+    UpdateGeometry();
+}
+
 void MainWindow::DiskMesh()
 {
     Vector up1(0, 1, 0);
@@ -74,6 +135,8 @@ void MainWindow::ConeMesh()
     Vector center1(0, 0, 0);
 
     Mesh coneMesh = Mesh(Cone(5.0, 5.0, center1), 15);
+    //coneMesh.RotateX(90);
+    //coneMesh.Translation(Vector(0, 0, 5));
 
     std::vector<Color> cols;
     cols.resize(coneMesh.Vertexes());
@@ -86,17 +149,21 @@ void MainWindow::ConeMesh()
 void MainWindow::CylinderMesh()
 {
     Vector center1(0, 0, 0);
-    Vector center2(0, 0, 5);
-    Vector up1(0, 1, 0);
+    //Vector center2(0, 0, 5);
+    //Vector up1(0, 1, 0);
 
     Mesh cylinderMesh = Mesh(Cylinder(5.0, 5.0, center1), 15);
-    Mesh diskMesh = Mesh(Disk(10.0, up1, center2), 15);
+    /*Mesh diskMesh = Mesh(Disk(10.0, up1, center2), 15);
     Mesh ToreMesh = Mesh(Tore(5.0, 2.0), 20, 20);
     Mesh sphereMesh = Mesh(Sphere(5.0, center1), 15);
+    Mesh coneMesh = Mesh(Cone(5.0, 5.0, center1), 15);
 
+    coneMesh.Translation(Vector(0, 0, 5));
+
+    cylinderMesh.Merge(coneMesh);
     cylinderMesh.Merge(diskMesh);
     cylinderMesh.Merge(ToreMesh);
-    cylinderMesh.Merge(sphereMesh);
+    cylinderMesh.Merge(sphereMesh);*/
 
     std::vector<Color> cols;
     cols.resize(cylinderMesh.Vertexes());
@@ -123,6 +190,7 @@ void MainWindow::SphereMesh()
 void MainWindow::ToreMesh()
 {
     Mesh ToreMesh = Mesh(Tore(5.0, 2.0), 20, 20);
+    //ToreMesh.RotateX(45.0);
 
     std::vector<Color> cols;
     cols.resize(ToreMesh.Vertexes());
@@ -135,6 +203,11 @@ void MainWindow::ToreMesh()
 void MainWindow::BoxMeshExample()
 {
 	Mesh boxMesh = Mesh(Box(1.0));
+    //boxMesh.RotateX(45.0);
+    //boxMesh.RotateY(45.0);
+    //boxMesh.RotateZ(45.0);
+    //boxMesh.Translation(Vector(3, 0, 0));
+    //boxMesh.ScaleWithVector(Vector(2, 2, 2));
 
 	std::vector<Color> cols;
 	cols.resize(boxMesh.Vertexes());

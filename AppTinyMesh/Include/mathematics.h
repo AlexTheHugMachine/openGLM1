@@ -2,7 +2,6 @@
 
 #include <math.h>
 #include <ostream>
-#include "matrix.h"
 
 class Math
 {

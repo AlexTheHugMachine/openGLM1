@@ -7,12 +7,13 @@ class matrix
 {
 public:
     matrix();
+    matrix(float aa, float ab, float ac, float ba, float bb, float bc, float ca, float cb, float cc);
     float MatrixTab[3][3];
     matrix IdentMatrix();
     matrix Homothetie();
-    matrix RotationAxeX(double angle);
-    matrix RotationAxeY(double angle);
-    matrix RotationAxeZ(double angle);
+    void RotationAxeX(double angle);
+    void RotationAxeY(double angle);
+    void RotationAxeZ(double angle);
     matrix Transpo();
     matrix Inverse();
     matrix constructMatrixDet();
@@ -21,6 +22,7 @@ public:
     matrix operator+(matrix m2);
     matrix operator*(matrix m2);
     matrix operator*(float x);
+    matrix operator*(Vector v);
 };
 
 #endif // MATRIX_H
