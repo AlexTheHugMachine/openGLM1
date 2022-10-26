@@ -399,16 +399,6 @@ Mesh::Mesh(const Sphere& sphere, int nbpoints)
             AddTriangle(ia, ic, id, nbpoints + ((m - 1) * 2 * nbpoints) + (2 * (n - 1)) + 1);
         }
     }
-    /*// South Pole Triangle
-    for (int o = 0; o < nbpoints; o++)
-    {
-        int ia = ((nbpoints - 1) * nbpoints) + o;
-        int ib = (nbpoints * nbpoints) + 1;
-        int ic = ((nbpoints - 1) * nbpoints) + (o % nbpoints) + 1;
-        Triangle t(vertices[ia], vertices[ib], vertices[ic]);
-        normals.push_back(t.Normal());
-        AddTriangle(ia, ib, ic, (nbpoints * 2) * (nbpoints - 1) + nbpoints - 1 + o);
-    }*/
 }
 
 /*!
@@ -487,7 +477,11 @@ void Mesh::Merge(Mesh m) {
     }
 }
 
-void Mesh::RotateX(double angle)
+/*!
+ * \brief Mesh::RotateX
+ * \param angle
+ */
+void Mesh::RotateX(int angle)
 {
     matrix MatriceX;
     MatriceX.RotationAxeX(angle);
@@ -500,7 +494,7 @@ void Mesh::RotateX(double angle)
     }
 }
 
-void Mesh::RotateY(double angle)
+void Mesh::RotateY(int angle)
 {
     matrix MatriceY;
     MatriceY.RotationAxeY(angle);
@@ -513,7 +507,7 @@ void Mesh::RotateY(double angle)
     }
 }
 
-void Mesh::RotateZ(double angle)
+void Mesh::RotateZ(int angle)
 {
     matrix MatriceZ;
     MatriceZ.RotationAxeZ(angle);

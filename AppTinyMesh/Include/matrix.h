@@ -11,9 +11,9 @@ public:
     float MatrixTab[3][3];
     matrix IdentMatrix();
     matrix Homothetie();
-    void RotationAxeX(double angle);
-    void RotationAxeY(double angle);
-    void RotationAxeZ(double angle);
+    void RotationAxeX(int angle);
+    void RotationAxeY(int angle);
+    void RotationAxeZ(int angle);
     matrix Transpo();
     matrix Inverse();
     matrix constructMatrixDet();

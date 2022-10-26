@@ -76,7 +76,7 @@ matrix matrix::Homothetie()
  * \param angle Angle in degrees
  * \return The x axis rotation matrix
  */
-void matrix::RotationAxeX(double angle)
+void matrix::RotationAxeX(int angle)
 {
     double AngleRadians = Math::DegreeToRadian(angle);
 
@@ -98,7 +98,7 @@ void matrix::RotationAxeX(double angle)
  * \param angle Angle in degrees
  * \return The y axis rotation matrix
  */
-void matrix::RotationAxeY(double angle)
+void matrix::RotationAxeY(int angle)
 {
     double AngleRadians = Math::DegreeToRadian(angle);
 
@@ -120,7 +120,7 @@ void matrix::RotationAxeY(double angle)
  * \param angle Angle in degrees
  * \return The z axis rotation matrix
  */
-void matrix::RotationAxeZ(double angle)
+void matrix::RotationAxeZ(int angle)
 {
     double AngleRadians = Math::DegreeToRadian(angle);
 

@@ -2,6 +2,11 @@
 #include "implicits.h"
 #include "ui_interface.h"
 
+int RX;
+int RY;
+int RZ;
+Mesh m;
+
 MainWindow::MainWindow() : QMainWindow(), uiw(new Ui::Assets)
 {
 	// Chargement de l'interface
@@ -40,6 +45,9 @@ void MainWindow::CreateActions()
     connect(uiw->wireframe, SIGNAL(clicked()), this, SLOT(UpdateMaterial()));
     connect(uiw->radioShadingButton_1, SIGNAL(clicked()), this, SLOT(UpdateMaterial()));
     connect(uiw->radioShadingButton_2, SIGNAL(clicked()), this, SLOT(UpdateMaterial()));
+    connect(uiw->RotateXslider, SIGNAL(valueChanged(int)), this, SLOT(meshRotationX()));
+    connect(uiw->RotateYslider, SIGNAL(valueChanged(int)), this, SLOT(meshRotationY()));
+    connect(uiw->RotateZslider, SIGNAL(valueChanged(int)), this, SLOT(meshRotationZ()));
 
 	// Widget edition
 	connect(meshWidget, SIGNAL(_signalEditSceneLeft(const Ray&)), this, SLOT(editingSceneLeft(const Ray&)));
@@ -52,6 +60,57 @@ void MainWindow::editingSceneLeft(const Ray&)
 
 void MainWindow::editingSceneRight(const Ray&)
 {
+}
+
+void MainWindow::on_RotateXslider_valueChanged(int value)
+{
+    RX = value;
+}
+
+void MainWindow::on_RotateYslider_valueChanged(int value)
+{
+    RY = value;
+}
+
+void MainWindow::on_RotateZslider_valueChanged(int value)
+{
+    RZ = value;
+}
+
+void MainWindow::meshRotationX()
+{
+    m.RotateX(RX);
+
+    std::vector<Color> cols;
+    cols.resize(m.Vertexes());
+    for (size_t i = 0; i < cols.size(); i++)
+        cols[i] = Color(200,200,200); //Color(double(i) / 6.0, fmod(double(i) * 39.478378, 1.0), 0.0);
+    meshColor = MeshColor(m, cols, m.VertexIndexes());
+    UpdateGeometry();
+}
+
+void MainWindow::meshRotationY()
+{
+    m.RotateY(RY);
+
+    std::vector<Color> cols;
+    cols.resize(m.Vertexes());
+    for (size_t i = 0; i < cols.size(); i++)
+        cols[i] = Color(200,200,200); //Color(double(i) / 6.0, fmod(double(i) * 39.478378, 1.0), 0.0);
+    meshColor = MeshColor(m, cols, m.VertexIndexes());
+    UpdateGeometry();
+}
+
+void MainWindow::meshRotationZ()
+{
+    m.RotateZ(RZ);
+
+    std::vector<Color> cols;
+    cols.resize(m.Vertexes());
+    for (size_t i = 0; i < cols.size(); i++)
+        cols[i] = Color(200,200,200); //Color(double(i) / 6.0, fmod(double(i) * 39.478378, 1.0), 0.0);
+    meshColor = MeshColor(m, cols, m.VertexIndexes());
+    UpdateGeometry();
 }
 
 void MainWindow::AmongusMesh()
@@ -88,13 +147,15 @@ void MainWindow::AmongusMesh()
 
     sphereMesh1.Translation(Vector(0, 0, 14));
     sphereMesh1.ScaleWithVector(Vector(1, 1, 0.7));
-    //sphereMesh1.RotateZ(180);
+    sphereMesh1.RotateZ(180);
 
     sphereMesh2.Translation(Vector(0, 7, 15));
     sphereMesh2.ScaleWithVector(Vector(0.8, 0.5, 0.5));
+    sphereMesh2.RotateZ(180);
 
     sphereMesh3.Translation(Vector(0, -8, 7));
     sphereMesh3.ScaleWithVector(Vector(0.6, 0.6, 0.9));
+    sphereMesh3.RotateZ(180);
 
     AmongUs.Merge(cylinderMesh1);
     AmongUs.Merge(cylinderMesh2);
@@ -106,11 +167,13 @@ void MainWindow::AmongusMesh()
     AmongUs.Merge(ToreMesh1);
     AmongUs.Merge(ToreMesh2);
 
+    m = AmongUs;
+
     std::vector<Color> cols;
-    cols.resize(AmongUs.Vertexes());
+    cols.resize(m.Vertexes());
     for (size_t i = 0; i < cols.size(); i++)
         cols[i] = Color(200,200,200); //Color(double(i) / 6.0, fmod(double(i) * 39.478378, 1.0), 0.0);
-    meshColor = MeshColor(AmongUs, cols, AmongUs.VertexIndexes());
+    meshColor = MeshColor(m, cols, m.VertexIndexes());
     UpdateGeometry();
 }
 
@@ -119,13 +182,14 @@ void MainWindow::DiskMesh()
     Vector up1(0, 1, 0);
     Vector center1(0, 0, 0);
 
-    Mesh diskMesh = Mesh(Disk(10.0, up1, center1), 15);
+    //Mesh diskMesh = Mesh(Disk(10.0, up1, center1), 15);
+    m = Mesh(Disk(10.0, up1, center1), 15);
 
     std::vector<Color> cols;
-    cols.resize(diskMesh.Vertexes());
+    cols.resize(m.Vertexes());
     for (size_t i = 0; i < cols.size(); i++)
         cols[i] = Color(1,1,1);//Color(double(i) / 6.0, fmod(double(i) * 39.478378, 1.0), 0.0);
-    meshColor = MeshColor(diskMesh, cols, diskMesh.VertexIndexes());
+    meshColor = MeshColor(m, cols, m.VertexIndexes());
     UpdateGeometry();
 
 }
@@ -134,42 +198,31 @@ void MainWindow::ConeMesh()
 {
     Vector center1(0, 0, 0);
 
-    Mesh coneMesh = Mesh(Cone(5.0, 5.0, center1), 15);
+    //Mesh coneMesh = Mesh(Cone(5.0, 5.0, center1), 15);
     //coneMesh.RotateX(90);
     //coneMesh.Translation(Vector(0, 0, 5));
+    m = Mesh(Cone(5.0, 5.0, center1), 15);
 
     std::vector<Color> cols;
-    cols.resize(coneMesh.Vertexes());
+    cols.resize(m.Vertexes());
     for (size_t i = 0; i < cols.size(); i++)
         cols[i] = Color(200,200,200); //Color(double(i) / 6.0, fmod(double(i) * 39.478378, 1.0), 0.0);
-    meshColor = MeshColor(coneMesh, cols, coneMesh.VertexIndexes());
+    meshColor = MeshColor(m, cols, m.VertexIndexes());
     UpdateGeometry();
 }
 
 void MainWindow::CylinderMesh()
 {
     Vector center1(0, 0, 0);
-    //Vector center2(0, 0, 5);
-    //Vector up1(0, 1, 0);
 
-    Mesh cylinderMesh = Mesh(Cylinder(5.0, 5.0, center1), 15);
-    /*Mesh diskMesh = Mesh(Disk(10.0, up1, center2), 15);
-    Mesh ToreMesh = Mesh(Tore(5.0, 2.0), 20, 20);
-    Mesh sphereMesh = Mesh(Sphere(5.0, center1), 15);
-    Mesh coneMesh = Mesh(Cone(5.0, 5.0, center1), 15);
-
-    coneMesh.Translation(Vector(0, 0, 5));
-
-    cylinderMesh.Merge(coneMesh);
-    cylinderMesh.Merge(diskMesh);
-    cylinderMesh.Merge(ToreMesh);
-    cylinderMesh.Merge(sphereMesh);*/
+    //Mesh cylinderMesh = Mesh(Cylinder(5.0, 5.0, center1), 15);
+    m = Mesh(Cylinder(5.0, 5.0, center1), 15);
 
     std::vector<Color> cols;
-    cols.resize(cylinderMesh.Vertexes());
+    cols.resize(m.Vertexes());
     for (size_t i = 0; i < cols.size(); i++)
         cols[i] = Color(200,200,200); //Color(double(i) / 6.0, fmod(double(i) * 39.478378, 1.0), 0.0);
-    meshColor = MeshColor(cylinderMesh, cols, cylinderMesh.VertexIndexes());
+    meshColor = MeshColor(m, cols, m.VertexIndexes());
     UpdateGeometry();
 }
 
@@ -177,37 +230,33 @@ void MainWindow::SphereMesh()
 {
     Vector center1(0, 0, 0);
 
-    Mesh sphereMesh = Mesh(Sphere(5.0, center1), 15);
+    //Mesh sphereMesh = Mesh(Sphere(5.0, center1), 15);
+    m = Mesh(Sphere(5.0, center1), 15);
 
     std::vector<Color> cols;
-    cols.resize(sphereMesh.Vertexes());
+    cols.resize(m.Vertexes());
     for (size_t i = 0; i < cols.size(); i++)
         cols[i] = Color(200,200,200); //Color(double(i) / 6.0, fmod(double(i) * 39.478378, 1.0), 0.0);
-    meshColor = MeshColor(sphereMesh, cols, sphereMesh.VertexIndexes());
+    meshColor = MeshColor(m, cols, m.VertexIndexes());
     UpdateGeometry();
 }
 
 void MainWindow::ToreMesh()
 {
-    Mesh ToreMesh = Mesh(Tore(5.0, 2.0), 20, 20);
-    //ToreMesh.RotateX(45.0);
+    //Mesh ToreMesh = Mesh(Tore(5.0, 2.0), 20, 20);
+    m = Mesh(Tore(5.0, 2.0), 20, 20);
 
     std::vector<Color> cols;
-    cols.resize(ToreMesh.Vertexes());
+    cols.resize(m.Vertexes());
     for (size_t i = 0; i < cols.size(); i++)
         cols[i] = Color(200,200,200); //Color(double(i) / 6.0, fmod(double(i) * 39.478378, 1.0), 0.0);
-    meshColor = MeshColor(ToreMesh, cols, ToreMesh.VertexIndexes());
+    meshColor = MeshColor(m, cols, m.VertexIndexes());
     UpdateGeometry();
 }
 
 void MainWindow::BoxMeshExample()
 {
 	Mesh boxMesh = Mesh(Box(1.0));
-    //boxMesh.RotateX(45.0);
-    //boxMesh.RotateY(45.0);
-    //boxMesh.RotateZ(45.0);
-    //boxMesh.Translation(Vector(3, 0, 0));
-    //boxMesh.ScaleWithVector(Vector(2, 2, 2));
 
 	std::vector<Color> cols;
 	cols.resize(boxMesh.Vertexes());

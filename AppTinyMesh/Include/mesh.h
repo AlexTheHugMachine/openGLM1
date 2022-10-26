@@ -133,9 +133,9 @@ public:
   explicit Mesh(const Tore&, int nbpoints_radial, int nbpoints_tubular);
 
   void Merge(Mesh m);
-  void RotateX(double angle);
-  void RotateY(double angle);
-  void RotateZ(double angle);
+  void RotateX(int angle);
+  void RotateY(int angle);
+  void RotateZ(int angle);
   void Translation(Vector v);
   void ScaleWithVector(Vector v);
 

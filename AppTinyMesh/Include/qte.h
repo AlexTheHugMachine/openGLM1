@@ -27,6 +27,9 @@ public:
 public slots:
   void editingSceneLeft(const Ray&);
   void editingSceneRight(const Ray&);
+  void meshRotationX();
+  void meshRotationY();
+  void meshRotationZ();
   void AmongusMesh();
   void BoxMeshExample();
   void DiskMesh();
@@ -37,6 +40,10 @@ public slots:
   void SphereImplicitExample();
   void ResetCamera();
   void UpdateMaterial();
+private slots:
+  void on_RotateXslider_valueChanged(int value);
+  void on_RotateYslider_valueChanged(int value);
+  void on_RotateZslider_valueChanged(int value);
 };
 
 #endif
