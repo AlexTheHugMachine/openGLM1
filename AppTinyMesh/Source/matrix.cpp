@@ -19,6 +19,18 @@ matrix::matrix()
     }
 }
 
+/*!
+ * \brief Create a matrix with what we want in it
+ * \param aa Value of the matrix in position 00
+ * \param ab Value of the matrix in position 01
+ * \param ac Value of the matrix in position 02
+ * \param ba Value of the matrix in position 10
+ * \param bb Value of the matrix in position 11
+ * \param bc Value of the matrix in position 12
+ * \param ca Value of the matrix in position 20
+ * \param cb Value of the matrix in position 21
+ * \param cc Value of the matrix in position 22
+ */
 matrix::matrix(float aa, float ab, float ac, float ba, float bb, float bc, float ca, float cb, float cc)
 {
     MatrixTab[0][0] = aa;
@@ -164,12 +176,6 @@ matrix matrix::Transpo()
     return m;
 }
 
-/*!
- * \brief Calculate the determinant of the sus matrix
- * \param indexI
- * \param indexT
- * \return
- */
 int matrix::detSusMatrix(int indexI, int indexT)
 {
     int susMatrix[4];

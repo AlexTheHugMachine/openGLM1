@@ -268,8 +268,6 @@ Mesh::Mesh(const Cone& cone, int nbpoints)
 
     for (int j = 0; j< nbpoints; j++)
     {
-        //Create Triangle with the cone tip and the base (disk)
-        //Triangle t(vertices[j], vertices[nbpoints+1], vertices[(j % nbpoints) + 1]);
         double alpha = step * j;
         double x = cone.Center[0] + cone.radius * cos(alpha);
         double y = cone.Center[1] + cone.radius * sin(alpha);
@@ -316,7 +314,6 @@ Mesh::Mesh(const Cylinder& cylinder, int nbpoints)
         AddTriangle(0,1+i, 1+((i+1) % nbpoints) , 0); // 1+ pour gerer le decal du cengtre
     }
 
-    //normals.push_back(Vector(0, 0, 1));
     for (int j = 0; j<nbpoints; j++)
     {
         double alpha = step * j;
@@ -478,8 +475,8 @@ void Mesh::Merge(Mesh m) {
 }
 
 /*!
- * \brief Mesh::RotateX
- * \param angle
+ * \brief Apply a rotation on the x axis
+ * \param angle Angle of rotation in degrees
  */
 void Mesh::RotateX(int angle)
 {
@@ -494,6 +491,10 @@ void Mesh::RotateX(int angle)
     }
 }
 
+/*!
+ * \brief Apply a rotation on the y axis
+ * \param angle Angle of rotation in degrees
+ */
 void Mesh::RotateY(int angle)
 {
     matrix MatriceY;
@@ -507,6 +508,10 @@ void Mesh::RotateY(int angle)
     }
 }
 
+/*!
+ * \brief Apply a rotation on the z axis
+ * \param angle Angle of rotation in degrees
+ */
 void Mesh::RotateZ(int angle)
 {
     matrix MatriceZ;
@@ -520,6 +525,10 @@ void Mesh::RotateZ(int angle)
     }
 }
 
+/*!
+ * \brief Apply a translation with a vector's coordinates
+ * \param v Vector wich have coordinates information
+ */
 void Mesh::Translation(Vector v)
 {
     matrix Translation(v[0], 0, 0, 0, v[1], 0, 0, 0, v[2]);
@@ -531,6 +540,10 @@ void Mesh::Translation(Vector v)
     }
 }
 
+/*!
+ * \brief Apply a scale with a vector's coordinates
+ * \param v Vector wich represents the axis
+ */
 void Mesh::ScaleWithVector(Vector v)
 {
     matrix Scale(v[0], 0, 0, 0, v[1], 0, 0, 0, v[2]);

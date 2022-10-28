@@ -79,7 +79,7 @@ void MainWindow::on_RotateZslider_valueChanged(int value)
 
 void MainWindow::meshRotationX()
 {
-    m.RotateX(RX);
+    m.RotateX(RX/10);
 
     std::vector<Color> cols;
     cols.resize(m.Vertexes());
@@ -91,7 +91,7 @@ void MainWindow::meshRotationX()
 
 void MainWindow::meshRotationY()
 {
-    m.RotateY(RY);
+    m.RotateY(RY/10);
 
     std::vector<Color> cols;
     cols.resize(m.Vertexes());
@@ -103,7 +103,7 @@ void MainWindow::meshRotationY()
 
 void MainWindow::meshRotationZ()
 {
-    m.RotateZ(RZ);
+    m.RotateZ(RZ/10);
 
     std::vector<Color> cols;
     cols.resize(m.Vertexes());
@@ -218,6 +218,64 @@ void MainWindow::CylinderMesh()
     //Mesh cylinderMesh = Mesh(Cylinder(5.0, 5.0, center1), 15);
     m = Mesh(Cylinder(5.0, 5.0, center1), 15);
 
+    Triangle t1;
+    Vector Normalised;
+    Vector t1center;
+    Vector t1center2;
+    Vector t1normal;
+    float rx;
+    float ry;
+    float rz;
+    Vector rayon;
+    double t = 0.0;
+    double u = 0.0;
+    double v = 0.0;
+    Triangle test;
+
+    for(int i = 0; i<m.Triangles(); i++)
+    {
+        int c = 1;
+        t1 = m.GetTriangle(i);      //AB = AxBx + AyBy + AzBz
+        t1center = t1.Center();
+        t1normal = t1.Normal();
+        Normalised = Normalized(t1normal);
+        t1center2 = t1center+Normalised;
+        for(int j=0; j<1; j++)
+        {
+            do
+            {
+                rx = (rand()%100);
+                ry = (rand()%100);
+                rz = (rand()%100);
+                rayon = Normalized(Vector(rx, ry, rz));
+            }
+            while((Normalised[0]*rayon[0]+Normalised[1]*rayon[1]+Normalised[2]*rayon[2]) > 0);
+            Ray ray1(t1center2, rayon);
+            /*for(int k=0; k<m.Triangles(); k++)
+            {
+                test = m.GetTriangle(k);
+                if(test.Intersect(ray1, t, u, v))
+                {
+                    std::cout<<c++<<std::endl;
+                }
+            }*/
+            //t1.Intersect(ray1, t, u, v);
+            t = 0.0;
+            u = 0.0;
+            v = 0.0;
+            /*std::cout<<"u : "<<u<<std::endl;
+            std::cout<<"v : "<<v<<std::endl;
+            std::cout<<"t : "<<t<<std::endl;*/
+            if(t1.Intersect(ray1, t, u, v))
+            {
+                std::cout<<c++<<std::endl;
+            }
+            /*std::cout<<"u_ : "<<u<<std::endl;
+            std::cout<<"v_ : "<<v<<std::endl;
+            std::cout<<"t_ : "<<t<<std::endl;*/
+        }
+    }
+
     std::vector<Color> cols;
     cols.resize(m.Vertexes());
     for (size_t i = 0; i < cols.size(); i++)
@@ -244,26 +302,106 @@ void MainWindow::SphereMesh()
 void MainWindow::ToreMesh()
 {
     //Mesh ToreMesh = Mesh(Tore(5.0, 2.0), 20, 20);
-    m = Mesh(Tore(5.0, 2.0), 20, 20);
+    m = Mesh(Tore(5.0, 2.5), 20, 20);
+
+    Triangle t1;
+    Vector Normalised;
+    Vector t1center;
+    Vector t1center2;
+    Vector t1normal;
+    float rx;
+    float ry;
+    float rz;
+    Vector rayon;
+    double t;
+    double u;
+    double v;
+
+    for(int i = 0; i<m.Triangles(); i++)
+    {
+        int c = 1;
+        t1 = m.GetTriangle(i);      //AB = AxBx + AyBy + AzBz
+        t1center = t1.Center();
+        t1normal = t1.Normal();
+        Normalised = Normalized(t1normal);
+        t1center2 = t1center+Normalised;
+        for(int j=0; j<5; j++)
+        {
+            do
+            {
+                rx = (rand()%100);
+                ry = (rand()%100);
+                rz = (rand()%100);
+                rayon = Normalized(Vector(rx, ry, rz));
+            }
+            while((Normalised[0]*rayon[0]+Normalised[1]*rayon[1]+Normalised[2]*rayon[2]) > 0);
+            Ray ray1(t1center2, rayon);
+            t1.Intersect(ray1, t, u, v);
+            if(t1.Intersect(ray1, t, u, v))
+            {
+                std::cout<<c++<<std::endl;
+            }
+        }
+    }
 
     std::vector<Color> cols;
     cols.resize(m.Vertexes());
-    for (size_t i = 0; i < cols.size(); i++)
-        cols[i] = Color(200,200,200); //Color(double(i) / 6.0, fmod(double(i) * 39.478378, 1.0), 0.0);
+    for (int i = 0; i < cols.size(); i++)
+        cols[i] = Color(0,0,0); //Color(double(i) / 6.0, fmod(double(i) * 39.478378, 1.0), 0.0);
     meshColor = MeshColor(m, cols, m.VertexIndexes());
+    std::cout<<"sussy";
     UpdateGeometry();
 }
 
 void MainWindow::BoxMeshExample()
 {
-	Mesh boxMesh = Mesh(Box(1.0));
+    //Mesh boxMesh = Mesh(Box(1.0));
+    m = Mesh(Box(1.0));
+    Triangle t1;
+    Vector Normalised;
+    Vector t1center;
+    Vector t1center2;
+    Vector t1normal;
+    float rx;
+    float ry;
+    float rz;
+    Vector rayon;
+    double t;
+    double u;
+    double v;
 
+    for(int i = 0; i<m.Triangles(); i++)
+    {
+        int c = 0;
+        t1 = m.GetTriangle(i);      //AB = AxBx + AyBy + AzBz
+        t1center = t1.Center();
+        t1normal = t1.Normal();
+        Normalised = Normalized(t1normal);
+        t1center2 = t1center+Normalised;
+        for(int j=0; j<5; j++)
+        {
+            do
+            {
+                rx = (rand()%100);
+                ry = (rand()%100);
+                rz = (rand()%100);
+                rayon = Normalized(Vector(rx, ry, rz));
+            }
+            while((Normalised[0]*rayon[0]+Normalised[1]*rayon[1]+Normalised[2]*rayon[2]) > 0);
+            Ray ray1(t1center2, rayon);
+            t1.Intersect(ray1, t, u, v);
+            if(t1.Intersect(ray1, t, u, v))
+            {
+                std::cout<<c++<<std::endl;
+            }
+        }
+    }
 	std::vector<Color> cols;
-	cols.resize(boxMesh.Vertexes());
+    cols.resize(m.Vertexes());
     for (size_t i = 0; i < cols.size(); i++)
 		cols[i] = Color(double(i) / 6.0, fmod(double(i) * 39.478378, 1.0), 0.0);
 
-	meshColor = MeshColor(boxMesh, cols, boxMesh.VertexIndexes());
+    meshColor = MeshColor(m, cols, m.VertexIndexes());
 	UpdateGeometry();
 }
 
