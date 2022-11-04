@@ -540,6 +540,36 @@ void Mesh::Translation(Vector v)
     }
 }
 
+void Mesh::SphereWarp(Vector v, int nb) // il faut appeler avec nbpoint / 2 + 1
+{
+    /*Vector vsphere;
+    double distancemin = sqrt(pow((vertices[0][0] - vsphere[0]), 2) + pow(vertices[0][1] - vsphere[1], 2) + pow(vertices[0][2] - vsphere[2], 2));;
+    int indicemin = 0;
+
+    vsphere = v / (Norm(v)/Norm(vertices[1]));
+
+    for (int i = 0; i < vertices.size(); ++i)
+    {
+        int j = sqrt(pow((vertices[i][0] - vsphere[0]), 2) + pow(vertices[i][1] - vsphere[1], 2) + pow(vertices[i][2] - vsphere[2], 2));
+
+        if (distancemin > j)
+        {
+            distancemin = j;
+            indicemin = i;
+        }
+    }
+    vertices[indicemin] = v;
+
+    for (int i = 0; i < nb; ++i)
+    {
+        for (int j = 0; j < nb; ++j)
+        {
+            if (!(i == 4 && j == 4))
+//                vertices[indicemin-j-i*15]*= (Norm(v)/Norm(vertices[1]) * ); 3 5 75%
+        }
+    }*/
+}
+
 /*!
  * \brief Apply a scale with a vector's coordinates
  * \param v Vector wich represents the axis

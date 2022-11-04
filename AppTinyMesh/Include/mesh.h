@@ -138,6 +138,7 @@ public:
   void RotateZ(int angle);
   void Translation(Vector v);
   void ScaleWithVector(Vector v);
+  void SphereWarp(Vector v, int nb);
 
   void Load(const QString&);
   void SaveObj(const QString&, const QString&) const;
