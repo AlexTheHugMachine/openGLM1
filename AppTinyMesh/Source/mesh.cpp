@@ -300,6 +300,7 @@ Mesh::Mesh(const Cylinder& cylinder, int nbpoints)
     narray.reserve((nbpoints) * 6);
 
     float step = (2 * M_PI) / nbpoints;
+
     normals.push_back(Vector(0, 0, -1));
     normals.push_back(Vector(0, 0, 1));
 
@@ -311,7 +312,7 @@ Mesh::Mesh(const Cylinder& cylinder, int nbpoints)
 
         vertices[i+1] = Vector(x1, y1, (double)(0.0 + cylinder.Center[2]));
 
-        AddTriangle(0,1+i, 1+((i+1) % nbpoints) , 0); // 1+ pour gerer le decal du cengtre
+        AddTriangle(0,1+i, 1+((i+1) % nbpoints) , 0);
     }
 
     for (int j = 0; j<nbpoints; j++)
@@ -328,7 +329,7 @@ Mesh::Mesh(const Cylinder& cylinder, int nbpoints)
 
         normals.push_back(n);
 
-        AddTriangle(nbpoints+1, 2+j+nbpoints, nbpoints+2+(j+1)%nbpoints , 1); // 1+ pour gerer le decal du cengtre
+        AddTriangle(nbpoints+1, 2+j+nbpoints, nbpoints+2+(j+1)%nbpoints , 1);
 
         AddTriangle(j+nbpoints+2, nbpoints+2+(j+1)%nbpoints, 1+(j%nbpoints), j+2);
         AddTriangle(j+1, 1+(j+1)%nbpoints, nbpoints+2+(j+1)%nbpoints, j+2);
@@ -342,17 +343,16 @@ Mesh::Mesh(const Cylinder& cylinder, int nbpoints)
  */
 Mesh::Mesh(const Sphere& sphere, int nbpoints)
 {
-    double deltaPhi = (2 * M_PI) / (nbpoints - 1);
-    double deltaTheta = M_PI / nbpoints;
+    double deltaPhi = (2 * M_PI) / nbpoints;
+    double deltaTheta = M_PI / (nbpoints - 1)   ;
     float theta, phi;
 
     // Vertices
-    vertices.resize((nbpoints * nbpoints) + 2); // div * div vertices + 2 poles.
-    vertices[0] = Vector(sphere.center[0], sphere.center[1], sphere.center[2] + sphere.radius); // north pole
+    vertices.resize(nbpoints * nbpoints);
 
     for (int j = 0; j < nbpoints; j++)
     {
-        theta = deltaTheta * (j + 1);
+        theta = deltaTheta * j;
 
         for(int i = 0; i < nbpoints; i++)
         {
@@ -360,40 +360,30 @@ Mesh::Mesh(const Sphere& sphere, int nbpoints)
             double x = sphere.center[0] + sphere.radius * (float)(sin(theta) * cos(phi));
             double y = sphere.center[1] + sphere.radius * (float)(sin(theta) * sin(phi));
             double z = sphere.center[2] + sphere.radius * (float)(cos(theta));
-            vertices[(j * nbpoints) + (i + 1)] = Vector(x, y, z);
+            vertices[(j * nbpoints) + i] = Vector(x, y, z);
         }
     }
-    vertices[(nbpoints * nbpoints) + 1] = Vector(sphere.center[0], sphere.center[1], sphere.center[2] - sphere.radius); // south pole
 
-
-    // Reserve space for the triangle array ; base + cone triangle = 2*div
-    varray.reserve((nbpoints * 3) * 2 + (nbpoints * (nbpoints * 3) * 2) * 2); // div rings -> (div - 1) slices of (2 * div) Triangles + (2 * div) Triangles linking with poles
+    varray.reserve((nbpoints * 3) * 2 + (nbpoints * (nbpoints * 3) * 2) * 2);
     narray.reserve((nbpoints * 3) * 2 + (nbpoints * (nbpoints * 3) * 2) * 2);
 
-    // North Pole Triangles
-    for (int k = 0; k < nbpoints; k++)
-    {
-        Triangle t(vertices[k], vertices[0], vertices[(k % nbpoints) + 1]);
-        normals.push_back(t.Normal());
-        AddTriangle(k, 0, (k % nbpoints) + 1, k-1);
-    }
     // Sphere Triangles
-    for (int m = 0; m < nbpoints; m++)
+    for (int m = 0; m < nbpoints - 1; m++)
     {
         for (int n = 0; n < nbpoints; n++)
         {
             int ia = (m * nbpoints) + n;
-            int ib = ((m - 1) * nbpoints) + n;
-            int ic = ((m - 1) * nbpoints) + (n % nbpoints) + 1;
-            int id = (m * nbpoints) + (n % nbpoints) + 1;
+            int ib = ((m + 1) * nbpoints) + n;
+            int ic = ((m + 1) * nbpoints) + (n + 1) % nbpoints;
+            int id = (m * nbpoints) + (n + 1) % nbpoints;
 
             Triangle abc(vertices[ia], vertices[ib], vertices[ic]);
             normals.push_back(abc.Normal());
-            AddTriangle(ia, ib, ic, nbpoints + ((m - 1) * 2 * nbpoints) + (2 * (n - 1)));
+            AddTriangle(ia, ib, ic, (m * nbpoints) * 2 + (2 * n));
 
             Triangle acd(vertices[ia], vertices[ic], vertices[id]);
             normals.push_back(acd.Normal());
-            AddTriangle(ia, ic, id, nbpoints + ((m - 1) * 2 * nbpoints) + (2 * (n - 1)) + 1);
+            AddTriangle(ia, ic, id, (m * nbpoints) * 2 + (2 * n) + 1);
         }
     }
 }
@@ -540,34 +530,41 @@ void Mesh::Translation(Vector v)
     }
 }
 
-void Mesh::SphereWarp(Vector v, int nb) // il faut appeler avec nbpoint / 2 + 1
+/*!
+ * \brief Scale and translate the mesh to fit it into a sphere passed as a parameter
+ * \param s Sphere in parameter
+ * \return The mesh fit in a Sphere mesh
+ */
+Mesh Mesh::SphereWarp(Sphere s)
 {
-    /*Vector vsphere;
-    double distancemin = sqrt(pow((vertices[0][0] - vsphere[0]), 2) + pow(vertices[0][1] - vsphere[1], 2) + pow(vertices[0][2] - vsphere[2], 2));;
-    int indicemin = 0;
+    Mesh res = Mesh();
+    res.Merge(*this);
 
-    vsphere = v / (Norm(v)/Norm(vertices[1]));
+    Vector barycenter = res.Center();
+    int nbVertices = res.Vertexes();
 
-    for (int i = 0; i < vertices.size(); ++i)
-    {
-        int j = sqrt(pow((vertices[i][0] - vsphere[0]), 2) + pow(vertices[i][1] - vsphere[1], 2) + pow(vertices[i][2] - vsphere[2], 2));
-
-        if (distancemin > j)
-        {
-            distancemin = j;
-            indicemin = i;
+    int vmax = -1;
+    double maxDist = -1000000.0;
+    for (int i = 0; i < nbVertices; i++) {
+        Vector dist = res.Vertex(i) - barycenter;
+        if (Norm(dist) > maxDist) {
+            vmax = i;
+            maxDist = Norm(Abs(dist));
         }
     }
-    vertices[indicemin] = v;
 
-    for (int i = 0; i < nb; ++i)
-    {
-        for (int j = 0; j < nb; ++j)
-        {
-            if (!(i == 4 && j == 4))
-//                vertices[indicemin-j-i*15]*= (Norm(v)/Norm(vertices[1]) * ); 3 5 75%
-        }
-    }*/
+    double scalecoef = s.radius / maxDist;
+    res.Scale(scalecoef);
+    barycenter = res.Center();
+
+    Vector newCenter = s.center - barycenter;
+
+    res.Translation(newCenter);
+
+    Mesh sphere = Mesh(Sphere(s.radius, s.center), 16);
+    res.Merge(sphere);
+
+    return res;
 }
 
 /*!

@@ -124,9 +124,9 @@ void MainWindow::AmongusMesh()
     Mesh cylinderMesh1 = Mesh(Cylinder(5.0, 5.0, center1), 14);
     Mesh cylinderMesh2 = Mesh(Cylinder(5.0, 5.0, center1), 14);
     Mesh cylinderMesh3 = Mesh(Cylinder(5.0, 5.0, center1), 14);
-    Mesh sphereMesh1 = Mesh(Sphere(5.0, center1), 15);
-    Mesh sphereMesh2 = Mesh(Sphere(5.0, center1), 15);
-    Mesh sphereMesh3 = Mesh(Sphere(5.0, center1), 15);
+    Mesh sphereMesh1 = Mesh(Sphere(5.0, center1), 14);
+    Mesh sphereMesh2 = Mesh(Sphere(5.0, center1), 14);
+    Mesh sphereMesh3 = Mesh(Sphere(5.0, center1), 14);
     Mesh coneMesh = Mesh(Cone(5.0, 5.0, center1), 15);
     Mesh ToreMesh1 = Mesh(Tore(5.0, 2.0), 8, 8);
     Mesh ToreMesh2 = Mesh(Tore(5.0, 2.0), 8, 8);
@@ -150,15 +150,12 @@ void MainWindow::AmongusMesh()
 
     sphereMesh1.Translation(Vector(0, 0, 14));
     sphereMesh1.ScaleWithVector(Vector(1, 1, 0.7));
-    sphereMesh1.RotateZ(180);
 
-    sphereMesh2.Translation(Vector(0, 7, 15));
+    sphereMesh2.Translation(Vector(0, 7, 16));
     sphereMesh2.ScaleWithVector(Vector(0.8, 0.5, 0.5));
-    sphereMesh2.RotateZ(180);
 
     sphereMesh3.Translation(Vector(0, -8, 7));
     sphereMesh3.ScaleWithVector(Vector(0.6, 0.6, 0.9));
-    sphereMesh3.RotateZ(180);
 
     AmongUs.Merge(cylinderMesh1);
     AmongUs.Merge(cylinderMesh2);
@@ -172,10 +169,64 @@ void MainWindow::AmongusMesh()
 
     m = AmongUs;
 
+    Triangle test;
+    Vector ve;
+    Vector ro;
+    Vector n;
+    double rx;
+    double ry;
+    double rz;
+    Vector rayon;
+    double t;
+    double u;
+    double v;
+    int secure = 1;     // variable qui permet de bloquer l'affichage d'un seul rayon (car =1) qui intersecte
+
     std::vector<Color> cols;
     cols.resize(m.Vertexes());
-    for (size_t i = 0; i < cols.size(); i++)
-        cols[i] = Color(200,200,200); //Color(double(i) / 6.0, fmod(double(i) * 39.478378, 1.0), 0.0);
+
+    for(int i = 0; i<m.Vertexes(); i++)
+    {
+        int c = 1;      // Correspond au compteur de collision
+        bool collision = false;
+        ve = m.Vertex(i);
+        n = m.Normal(i);
+        ro = ve+n;
+        for(int j=0; j<20; j++)     // 20 correspond au nombre de rayons envoyés
+        {
+            rx = (double(rand() % 101) / 100.0) * 2.0 - 1.0;
+            ry = (double(rand() % 101) / 100.0) * 2.0 - 1.0;
+            rz = (double(rand() % 101) / 100.0) * 2.0 - 1.0;
+            rayon = Normalized(Vector(rx, ry, rz));
+            if ((n*rayon) < 0)
+                rayon*=-1;
+            Ray ray1(ro, rayon);
+            if(c <= 20)     // 20 correspond au nombre de rayons envoyés
+            {
+                for(int k=0; k<m.Triangles() && !collision; k++)
+                {
+                    test = m.GetTriangle(k);
+                    if(test.Intersect(ray1, t, u, v) && t > 0)
+                    {
+                        c++;
+                        if(secure > 0)
+                        {
+                            std::cout << "normal : " << n << std::endl;
+                            std::cout << "rayon : " << rayon << std::endl;
+                            secure--;
+                        }
+                        collision = true;
+                    }
+                }
+                collision = false;
+            }
+        }
+        cols[i] = Color(255*(21-c)/20, 255*(21-c)/20, 255*(21-c)/20);
+    }
+
+    /*for (int i = 0; i < cols.size(); i++)
+        cols[i] = Color(255-(255/(5*c)),0,0); //Color(double(i) / 6.0, fmod(double(i) * 39.478378, 1.0), 0.0);*/
+    //cols[42] = Color(0, 0, 255);      // Sert a colorier le 42ème point en bleu afin de visualiser où se trouvent les points qui ne fonctionnent pas
     meshColor = MeshColor(m, cols, m.VertexIndexes());
     UpdateGeometry();
 
@@ -190,154 +241,12 @@ void MainWindow::DiskMesh()
     Vector up1(0, 1, 0);
     Vector center1(0, 0, 0);
 
-
-    //Mesh diskMesh = Mesh(Disk(10.0, up1, center1), 15);
     m = Mesh(Disk(10.0, up1, center1), 15);
 
-    std::vector<Color> cols;
-    cols.resize(m.Vertexes());
-    for (size_t i = 0; i < cols.size(); i++)
-        cols[i] = Color(1,1,1);//Color(double(i) / 6.0, fmod(double(i) * 39.478378, 1.0), 0.0);
-    meshColor = MeshColor(m, cols, m.VertexIndexes());
-    UpdateGeometry();
-
-
-    // To get the value of duration use the count()
-    // member function on the duration object
-    // After function call
-    auto stop = high_resolution_clock::now();
-    auto duration = duration_cast<microseconds>(stop - start);
-    std::cout << "Time taken to generate disk: "<< duration.count() << " microseconds" << std::endl;
-}
-
-void MainWindow::ConeMesh()
-{
-    auto start = high_resolution_clock::now();
-    Vector center1(0, 0, 0);
-
-    //Mesh coneMesh = Mesh(Cone(5.0, 5.0, center1), 15);
-    //coneMesh.RotateX(90);
-    //coneMesh.Translation(Vector(0, 0, 5));
-    m = Mesh(Cone(5.0, 5.0, center1), 15);
-
-    std::vector<Color> cols;
-    cols.resize(m.Vertexes());
-    for (size_t i = 0; i < cols.size(); i++)
-        cols[i] = Color(200,200,200); //Color(double(i) / 6.0, fmod(double(i) * 39.478378, 1.0), 0.0);
-    meshColor = MeshColor(m, cols, m.VertexIndexes());
-    UpdateGeometry();
-    auto stop = high_resolution_clock::now();
-    auto duration = duration_cast<microseconds>(stop - start);
-    std::cout << "Time taken to generate cone: "<< duration.count() << " microseconds" << std::endl;
-}
-
-void MainWindow::CylinderMesh()
-{
-    auto start = high_resolution_clock::now();
-    Vector center1(0, 0, 0);
-
-    //Mesh cylinderMesh = Mesh(Cylinder(5.0, 5.0, center1), 15);
-    m = Mesh(Cylinder(5.0, 5.0, center1), 15);
-
-
     Triangle test;
-    Vector Normalised;
-    Vector t1center;
-    Vector t1center2;
-    Vector t1normal;
-    float rx;
-    float ry;
-    float rz;
-    Vector rayon;
-    double t;
-    double u;
-    double v;
-
-    std::vector<Color> cols;
-    cols.resize(m.Vertexes());
-
-    for(int i = 0; i<m.Vertexes(); i++)
-    {
-        int c = 1;
-        std::cout<<1111111111111111111<<c<<std::endl;
-        std::cout<<m.Vertex(i)<<std::endl;
-        //AB = AxBx + AyBy + AzBz
-        bool collision = false;
-        t1center = m.Vertex(i);
-        t1normal = m.Normal(i);
-        Normalised = Normalized(t1normal);
-        t1center2 = t1center+Normalised;
-        for(int j=0; j<5; j++)
-        {
-            do
-            {
-                rx = (rand()%100);
-                ry = (rand()%100);
-                rz = (rand()%100);
-                rayon = Normalized(Vector(rx, ry, rz));
-            }
-            while((Normalised[0]*rayon[0]+Normalised[1]*rayon[1]+Normalised[2]*rayon[2]) > 0);
-            Ray ray1(t1center2, rayon);
-            if(c <= 5)
-            {
-                for(int k=0; k<m.Triangles() && !collision; k++)
-                {
-                    test = m.GetTriangle(k);
-                    if(test.Intersect(ray1, t, u, v))
-                    {
-                        std::cout<<c++<<std::endl;
-                        collision = true;
-                    }
-                }
-                collision = false;
-            }
-            std::cout<<"sussy : "<<c<<std::endl;
-        }
-        cols[i] = Color(255*(6-c)/5, 255*(6-c)/5, 255*(6-c)/5);
-    }
-
-    /*for (int i = 0; i < cols.size(); i++)
-        cols[i] = Color(255-(255/(5*c)),0,0); //Color(double(i) / 6.0, fmod(double(i) * 39.478378, 1.0), 0.0);*/
-    meshColor = MeshColor(m, cols, m.VertexIndexes());
-    //std::cout<<"sussy";
-    UpdateGeometry();
-    auto stop = high_resolution_clock::now();
-    auto duration = duration_cast<microseconds>(stop - start);
-    std::cout << "Time taken to generate cylinder: "<< duration.count() << " microseconds" << std::endl;
-}
-
-void MainWindow::SphereMesh()
-{
-    auto start = high_resolution_clock::now();
-    Vector center1(0, 0, 0);
-
-    //Mesh sphereMesh = Mesh(Sphere(5.0, center1), 15);
-    m = Mesh(Sphere(5.0, center1), 15);
-    m.SphereWarp(Vector(-4, 6, -5), 7);
-
-    std::vector<Color> cols;
-    cols.resize(m.Vertexes());
-    for (size_t i = 0; i < cols.size(); i++)
-        cols[i] = Color(200,200,200); //Color(double(i) / 6.0, fmod(double(i) * 39.478378, 1.0), 0.0);
-    meshColor = MeshColor(m, cols, m.VertexIndexes());
-    UpdateGeometry();
-    auto stop = high_resolution_clock::now();
-    auto duration = duration_cast<microseconds>(stop - start);
-    std::cout << "Time taken to generate sphere: "<< duration.count() << " microseconds" << std::endl;
-}
-
-void MainWindow::ToreMesh()
-{
-
-    auto start = high_resolution_clock::now();
-    //Mesh ToreMesh = Mesh(Tore(5.0, 2.0), 20, 20);
-    m = Mesh(Tore(5.0, 2.5), 20, 20);
-
-    Triangle test;
-    Vector Normalised;
-    Vector t1center;
-    Vector t1center2;
-    Vector t1normal;
+    Vector ve;
+    Vector ro;
+    Vector n;
     double rx;
     double ry;
     double rz;
@@ -351,75 +260,135 @@ void MainWindow::ToreMesh()
 
     for(int i = 0; i<m.Vertexes(); i++)
     {
-        int c = 1;
-        //std::cout<<1111111111111111111<<c<<std::endl;
-        //std::cout<<m.Vertex(i)<<std::endl;
-        //AB = AxBx + AyBy + AzBz
+        int c = 1;      // Correspond au compteur de collision
         bool collision = false;
-        t1center = m.Vertex(i);
-        t1normal = m.Normal(i);
-        Normalised = Normalized(t1normal);
-        t1center2 = t1center+Normalised;
-        for(int j=0; j<5; j++)
+        ve = m.Vertex(i);
+        n = m.Normal(i);
+        ro = ve+n;
+        for(int j=0; j<20; j++)     // 20 correspond au nombre de rayons envoyés
         {
             rx = (double(rand() % 101) / 100.0) * 2.0 - 1.0;
             ry = (double(rand() % 101) / 100.0) * 2.0 - 1.0;
             rz = (double(rand() % 101) / 100.0) * 2.0 - 1.0;
             rayon = Normalized(Vector(rx, ry, rz));
-            if ((Normalised*rayon) < 0)
+            if ((n*rayon) < 0)
                 rayon*=-1;
-            Ray ray1(t1center2, rayon);
-            if(c <= 5)
+            Ray ray1(ro, rayon);
+            if(c <= 20)     // 20 correspond au nombre de rayons envoyés
             {
                 for(int k=0; k<m.Triangles() && !collision; k++)
                 {
                     test = m.GetTriangle(k);
-                    if(test.Intersect(ray1, t, u, v))
+                    if(test.Intersect(ray1, t, u, v) && t > 0)
                     {
-                        //std::cout<<c++<<std::endl;
                         c++;
                         collision = true;
                     }
                 }
                 collision = false;
             }
-            //std::cout<<"sussy : "<<c<<std::endl;
         }
-        cols[i] = Color(255*(6-c)/5, 255*(6-c)/5, 255*(6-c)/5);
-        /*if(m.Vertex(i)[2] > 0)
-        {
-            cols[i] = Color(0, 0, 0);
-        }
-        else
-        {
-            cols[i] = Color(255, 255, 255);
-        }*/
+        cols[i] = Color(255*(21-c)/20, 255*(21-c)/20, 255*(21-c)/20);
     }
 
     /*for (int i = 0; i < cols.size(); i++)
         cols[i] = Color(255-(255/(5*c)),0,0); //Color(double(i) / 6.0, fmod(double(i) * 39.478378, 1.0), 0.0);*/
     meshColor = MeshColor(m, cols, m.VertexIndexes());
-    //std::cout<<"sussy";
     UpdateGeometry();
+
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stop - start);
-    std::cout << "Time taken to generate tore: "<< duration.count() << " microseconds" << std::endl;
+    std::cout << "Time taken to generate disk: "<< duration.count() << " microseconds" << std::endl;
 }
 
-void MainWindow::BoxMeshExample()
+void MainWindow::ConeMesh()
 {
-    //Mesh boxMesh = Mesh(Box(1.0));
     auto start = high_resolution_clock::now();
-    m = Mesh(Box(1.0));
+    Vector center1(0, 0, 0);
+
+    //coneMesh.RotateX(90);
+    //coneMesh.Translation(Vector(0, 0, 5));
+    m = Mesh(Cone(5.0, 5.0, center1), 16);
+    //--------------------------------------------------------------------------------
+    // Permet de tester la fonction SphereWarp en mettant un cone dans une sphere
+    /*Sphere s = Sphere(5.0, center1);
+    Mesh sw = m.SphereWarp(s);*/
 
     Triangle test;
-    Vector Normalised;
-    Vector t1center;
-    Vector t1center2;
-    Vector t1normal;
-    float rx;
-    float ry;
-    float rz;
+    Vector ve;
+    Vector ro;
+    Vector n;
+    double rx;
+    double ry;
+    double rz;
+    Vector rayon;
+    double t;
+    double u;
+    double v;
+
+    std::vector<Color> cols;
+    cols.resize(m.Vertexes());      // Remplacer "m.Vertexes()" par "sw.Vertexes()" pour visualiser le sphere warp
+
+    for(int i = 0; i<m.Vertexes(); i++)
+    {
+        int c = 1;      // Correspond au compteur de collision
+        bool collision = false;
+        ve = m.Vertex(i);
+        n = m.Normal(i);
+        ro = ve+n;
+        for(int j=0; j<20; j++)     // 20 correspond au nombre de rayons envoyés
+        {
+            rx = (double(rand() % 101) / 100.0) * 2.0 - 1.0;
+            ry = (double(rand() % 101) / 100.0) * 2.0 - 1.0;
+            rz = (double(rand() % 101) / 100.0) * 2.0 - 1.0;
+            rayon = Normalized(Vector(rx, ry, rz));
+            if ((n*rayon) < 0)
+                rayon*=-1;
+            Ray ray1(ro, rayon);
+            if(c <= 20)     // 20 correspond au nombre de rayons envoyés
+            {
+                for(int k=0; k<m.Triangles() && !collision; k++)
+                {
+                    test = m.GetTriangle(k);
+                    if(test.Intersect(ray1, t, u, v) && t > 0)
+                    {
+                        c++;
+                        collision = true;
+                    }
+                }
+                collision = false;
+            }
+        }
+        cols[i] = Color(255*(3-c)/2, 255*(3-c)/2, 255*(3-c)/2);
+    }
+    /*for (int i = 0; i < cols.size(); i++)
+        cols[i] = Color(255-(255/(5*c)),0,0); //Color(double(i) / 6.0, fmod(double(i) * 39.478378, 1.0), 0.0);*/
+    meshColor = MeshColor(m, cols, m.VertexIndexes());      // Remplacer m par sw pour visualiser le sphere warp
+    UpdateGeometry();
+
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>(stop - start);
+    std::cout << "Time taken to generate cone: "<< duration.count() << " microseconds" << std::endl;
+}
+
+void MainWindow::CylinderMesh()
+{
+    auto start = high_resolution_clock::now();
+    Vector center1(0, 0, 0);
+
+    //Mesh cylinderMesh = Mesh(Cylinder(5.0, 5.0, center1), 15);
+    m = Mesh(Cylinder(5.0, 5.0, center1), 15);
+    /*Sphere s = Sphere(5.0, center1);
+    Mesh sw = m.SphereWarp(s);*/
+
+
+    Triangle test;
+    Vector ve;
+    Vector ro;
+    Vector n;
+    double rx;
+    double ry;
+    double rz;
     Vector rayon;
     double t;
     double u;
@@ -430,50 +399,267 @@ void MainWindow::BoxMeshExample()
 
     for(int i = 0; i<m.Vertexes(); i++)
     {
-        int c = 1;
-        std::cout<<1111111111111111111<<c<<std::endl;
-        std::cout<<m.Vertex(i)<<std::endl;
-        //AB = AxBx + AyBy + AzBz
+        int c = 1;      // Correspond au compteur de collision
         bool collision = false;
-        t1center = m.Vertex(i);
-        t1normal = m.Normal(i);
-        Normalised = Normalized(t1normal);
-        t1center2 = t1center+Normalised;
-        for(int j=0; j<5; j++)
+        ve = m.Vertex(i);
+        n = m.Normal(i);
+        ro = ve+n+Vector(0, 0, -3);     // Nous avons rajouté un vecteur pour décaler les rayons pour voir si cela changeait quelque chose
+        for(int j=0; j<2; j++)      // 20 correspond au nombre de rayons envoyés
         {
-            do
+            rx = (double(rand() % 101) / 100.0) * 2.0 - 1.0;
+            ry = (double(rand() % 101) / 100.0) * 2.0 - 1.0;
+            rz = (double(rand() % 101) / 100.0) * 2.0 - 1.0;
+            rayon = Normalized(Vector(rx, ry, rz));
+            if ((n*rayon) < 0)
+                rayon*=-1;
+            Ray ray1(ro, rayon);
+            if(c <= 2)      // 20 correspond au nombre de rayons envoyés
             {
-                rx = (rand()%100);
-                ry = (rand()%100);
-                rz = (rand()%100);
-                rayon = Normalized(Vector(rx, ry, rz));
-            }
-            while((Normalised[0]*rayon[0]+Normalised[1]*rayon[1]+Normalised[2]*rayon[2]) > 0);
-            Ray ray1(t1center2, rayon);
-            if(c <= 5)
-            {
-                for(int k=0; k<1 && !collision; k++)
+                for(int k=0; k<m.Triangles() && !collision; k++)
                 {
                     test = m.GetTriangle(k);
-                    if(test.Intersect(ray1, t, u, v))
+                    if(test.Intersect(ray1, t, u, v) && t > 0)
                     {
-                        std::cout<<c++<<std::endl;
+                        c++;
+                        if(i == 1 || i == 21)       // =1 ou =21 car on sait que le deuxième point et le 21eme collisionnent alors qu'ils ne devraient pas
+                        {
+                            // tests servants à visualiser les rayons collisionnent avec quelque chose alors qu'ils ne devraient pas
+                            std::cout<<std::endl;
+                            std::cout<<"Vector de départ du rayon : "<< ro << std::endl;
+                            std::cout<<"Normal test : "<< test.Normal()<<std::endl;
+                            std::cout<<"Center test : "<<test.Center()<<std::endl;
+                            std::cout << "n : " << n << std::endl;
+                            std::cout << "rayon : " << rayon << std::endl;
+                            std::cout<<std::endl;
+                        }
                         collision = true;
                     }
                 }
                 collision = false;
             }
-            std::cout<<"sussy : "<<c<<std::endl;
         }
-        cols[i] = Color(255*(6-c)/5, 255*(6-c)/5, 255*(6-c)/5);
-
+        cols[i] = Color(255*(3-c)/2, 255*(3-c)/2, 255*(3-c)/2);
     }
 
     /*for (int i = 0; i < cols.size(); i++)
         cols[i] = Color(255-(255/(5*c)),0,0); //Color(double(i) / 6.0, fmod(double(i) * 39.478378, 1.0), 0.0);*/
     meshColor = MeshColor(m, cols, m.VertexIndexes());
-    //std::cout<<"sussy";
     UpdateGeometry();
+
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>(stop - start);
+    std::cout << "Time taken to generate cylinder: "<< duration.count() << " microseconds" << std::endl;
+}
+
+void MainWindow::SphereMesh()
+{
+    auto start = high_resolution_clock::now();
+    Vector center1(0, 0, 0);
+
+    m = Mesh(Sphere(5.0, center1), 15);
+
+    Triangle test;
+    Vector ve;
+    Vector ro;
+    Vector n;
+    double rx;
+    double ry;
+    double rz;
+    Vector rayon;
+    double t;
+    double u;
+    double v;
+
+    std::vector<Color> cols;
+    cols.resize(m.Vertexes());
+
+    for(int i = 0; i<m.Vertexes(); i++)
+    {
+        int c = 1;      // Correspond au compteur de collision
+        bool collision = false;
+        ve = m.Vertex(i);
+        n = m.Normal(i);
+        ro = ve+n;
+        for(int j=0; j<20; j++)     // 20 correspond au nombre de rayons envoyés
+        {
+            rx = (double(rand() % 101) / 100.0) * 2.0 - 1.0;
+            ry = (double(rand() % 101) / 100.0) * 2.0 - 1.0;
+            rz = (double(rand() % 101) / 100.0) * 2.0 - 1.0;
+            rayon = Normalized(Vector(rx, ry, rz));
+            if ((n*rayon) < 0)
+                rayon*=-1;
+            Ray ray1(ro, rayon);
+            if(c <= 20)     // 20 correspond au nombre de rayons envoyés
+            {
+                for(int k=0; k<m.Triangles() && !collision; k++)
+                {
+                    test = m.GetTriangle(k);
+                    if(test.Intersect(ray1, t, u, v) && t>0)
+                    {
+                        c++;
+                        // La sphere ne possède pas de tests d'affichage de rayons car nous
+                        //voulions comprendre le problème sur les autres formes en premier
+                        collision = true;
+                    }
+                }
+                collision = false;
+            }
+        }
+        cols[i] = Color(255*(21-c)/20, 255*(21-c)/20, 255*(21-c)/20);
+    }
+
+    /*for (int i = 0; i < cols.size(); i++)
+        cols[i] = Color(255-(255/(5*c)),0,0); //Color(double(i) / 6.0, fmod(double(i) * 39.478378, 1.0), 0.0);*/
+    meshColor = MeshColor(m, cols, m.VertexIndexes());
+    UpdateGeometry();
+
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>(stop - start);
+    std::cout << "Time taken to generate sphere: "<< duration.count() << " microseconds" << std::endl;
+}
+
+void MainWindow::ToreMesh()
+{
+
+    auto start = high_resolution_clock::now();
+
+    m = Mesh(Tore(5.0, 2.5), 20, 20);
+
+    Triangle test;
+    Vector ve;
+    Vector ro;
+    Vector n;
+    double rx;
+    double ry;
+    double rz;
+    Vector rayon;
+    double t;
+    double u;
+    double v;
+
+    std::vector<Color> cols;
+    cols.resize(m.Vertexes());
+
+    for(int i = 0; i<m.Vertexes(); i++)
+    {
+        int c = 1;      // Correspond au compteur de collision
+        bool collision = false;
+        ve = m.Vertex(i);
+        n = m.Normal(i);
+        ro = ve+n;
+        for(int j=0; j<20; j++)     // 20 correspond au nombre de rayons envoyés
+        {
+            rx = (double(rand() % 101) / 100.0) * 2.0 - 1.0;
+            ry = (double(rand() % 101) / 100.0) * 2.0 - 1.0;
+            rz = (double(rand() % 101) / 100.0) * 2.0 - 1.0;
+            rayon = Normalized(Vector(rx, ry, rz));
+            if ((n*rayon) < 0)
+                rayon*=-1;
+            Ray ray1(ro, rayon);
+            if(c <= 20)     // 20 correspond au nombre de rayons envoyés
+            {
+                for(int k=0; k<m.Triangles() && !collision; k++)
+                {
+                    test = m.GetTriangle(k);
+                    if(test.Intersect(ray1, t, u, v))
+                    {
+                        c++;
+                        if(i == 98)     // =98 car on sait que le 98eme collisionne alors qu'il ne devrait pas
+                        {
+                            // tests servants à visualiser les rayons collisionnent avec quelque chose alors qu'ils ne devraient pas
+                            std::cout<<std::endl;
+                            std::cout<<"Normal test : "<< test.Normal()<<std::endl;
+                            std::cout<<"Center test : "<<test.Center()<<std::endl;
+                            std::cout << "n : " << n << std::endl;
+                            std::cout << "rayon : " << rayon << std::endl;
+                            std::cout<<std::endl;
+                        }
+                        collision = true;
+                    }
+                }
+                collision = false;
+            }
+        }
+        cols[i] = Color(255*(21-c)/20, 255*(21-c)/20, 255*(21-c)/20);
+    }
+
+    /*for (int i = 0; i < cols.size(); i++)
+        cols[i] = Color(255-(255/(5*c)),0,0); //Color(double(i) / 6.0, fmod(double(i) * 39.478378, 1.0), 0.0);*/
+
+    // --------------------------------------------------------------
+    // Nous a permis de visualiser comment les points étaient répartis
+    // afin de trouver quels points posent problème dans l'intersection
+    cols[0] = Color(255, 0, 0);
+    cols[98] = Color(0, 255, 0);
+    cols[2] = Color(0, 0, 255);
+    std::cout<<"Vector vertice 98 " << m.Vertex(98) << std::endl;
+    std::cout<<"Normal vertice 98 " << m.Normal(98) << std::endl;
+
+    meshColor = MeshColor(m, cols, m.VertexIndexes());
+    UpdateGeometry();
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>(stop - start);
+    std::cout << "Time taken to generate tore: "<< duration.count() << " microseconds" << std::endl;
+}
+
+void MainWindow::BoxMeshExample()
+{
+    auto start = high_resolution_clock::now();
+    m = Mesh(Box(1.0));
+
+    Triangle test;
+    Vector ve;
+    Vector ro;
+    Vector n;
+    double rx;
+    double ry;
+    double rz;
+    Vector rayon;
+    double t;
+    double u;
+    double v;
+
+    std::vector<Color> cols;
+    cols.resize(m.Vertexes());
+
+    for(int i = 0; i<m.Vertexes(); i++)
+    {
+        int c = 1;      // Correspond au compteur de collision
+        bool collision = false;
+        ve = m.Vertex(i);
+        n = m.Normal(i);
+        ro = ve+n;
+        for(int j=0; j<20; j++)     // 20 correspond au nombre de rayons envoyés
+        {
+            rx = (double(rand() % 101) / 100.0) * 2.0 - 1.0;
+            ry = (double(rand() % 101) / 100.0) * 2.0 - 1.0;
+            rz = (double(rand() % 101) / 100.0) * 2.0 - 1.0;
+            rayon = Normalized(Vector(rx, ry, rz));
+            if ((n*rayon) < 0)
+                rayon*=-1;
+            Ray ray1(ro, rayon);
+            if(c <= 20)     // 20 correspond au nombre de rayons envoyés
+            {
+                for(int k=0; k<m.Triangles() && !collision; k++)
+                {
+                    test = m.GetTriangle(k);
+                    if(test.Intersect(ray1, t, u, v) && t>0)
+                    {
+                        c++;
+                        collision = true;
+                    }
+                }
+                collision = false;
+            }
+        }
+        cols[i] = Color(255*(21-c)/20, 255*(21-c)/20, 255*(21-c)/20);
+    }
+
+    /*for (int i = 0; i < cols.size(); i++)
+        cols[i] = Color(255-(255/(5*c)),0,0); //Color(double(i) / 6.0, fmod(double(i) * 39.478378, 1.0), 0.0);*/
+    meshColor = MeshColor(m, cols, m.VertexIndexes());
+    UpdateGeometry();
+
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stop - start);
     std::cout << "Time taken to generate boxExample: "<< duration.count() << " microseconds" << std::endl;

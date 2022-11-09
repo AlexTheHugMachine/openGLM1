@@ -106,6 +106,7 @@ public:
   Vector Vertex(int, int) const;
 
   Vector Normal(int) const;
+  Vector Center() const;
 
   int Triangles() const;
   int Vertexes() const;
@@ -138,7 +139,7 @@ public:
   void RotateZ(int angle);
   void Translation(Vector v);
   void ScaleWithVector(Vector v);
-  void SphereWarp(Vector v, int nb);
+  Mesh SphereWarp(Sphere s);
 
   void Load(const QString&);
   void SaveObj(const QString&, const QString&) const;
@@ -254,3 +255,15 @@ inline Vector Mesh::operator[](int i) const
   return vertices[i];
 }
 
+inline Vector Mesh::Center() const
+{
+    Vector isobarycenter = Vector(0.0, 0.0, 0.0);
+    Vector tmp = Vector(0.0, 0.0, 0.0);
+    int nbTriangles = Triangles();
+
+    for (int t = 0; t < Triangles(); t++) {
+        Vector tcenter = GetTriangle(t).Center();
+        isobarycenter += (1.0 / nbTriangles) * tcenter;
+    }
+    return isobarycenter;
+}
